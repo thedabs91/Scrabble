@@ -6,6 +6,7 @@
 
 import os
 
+# Opening a file that lists all words in a text document
 allwords = []
 wordsfile = open('Words/twl2018-dos.txt')
 for line in wordsfile:
@@ -15,19 +16,11 @@ for line in wordsfile:
 wordsfile.close()
 
 
-
-'''
-
-
-'''
-
-# From here to end was copied from 'NewAgeGram.py',
-# and saved in this file, I guess. I didn't write that down.
-# It actually has been edited
-
-
 # These converters will be changed when I figure out
 # a good way to have a user specified ordering of the tiles.
+
+# I have currently decided to save everything as alphabetical
+# and allow for different ordering when these are saved to databases.
 userlton = {'E':1,'A':2,'I':3,'O':4,'U':5,'S':6,\
               'R':7,'T':8,'N':9,'L':10,'D':11,'G':12,\
               'P':13,'M':14,'B':15,'H':16,'F':17,'W':18,\
@@ -70,22 +63,26 @@ def convertntol(list):
     return output
 '''
 
-def usersort(word):
-    numword = []
+# Writing functions
+# This will stay
+def alphasort(word):
+    listword = []
     for letr in word:
-        numword.append(userlton[letr])
-    numword.sort()
+        listword.append(letr)
+    listword.sort()
     output = ''
-    for num in numword:
-        output = output + userntol[num]
+    for letr in listword:
+        output = output + letr
     return(output)
 
+# I do not know if this is useful
 def userltonfun(word):
     output = []
     for letr in word:
         output.append(userlton[letr])
     return(output) 
 
+# This will stay
 def taxoncode(list):
     output = ''
     for item in list:
@@ -121,8 +118,8 @@ for word in allwords:
     letters = []
     wordData = [len(word)]
     # Putting a letter in the specified order
-    usergram = usersort(word)
-    wordData.append(usergram)
+    alphagram = alphasort(word)
+    wordData.append(alphagram)
     wordData.append(word)
     wordData.extend(['','',False,False])
     masterlist.append(wordData)
@@ -170,8 +167,8 @@ print('Word data added!')
 # I'm going to need to edit this to work.
 x = 0
 for data in masterlist:
-    masterlist[x][3] = usersort(masterlist[x][3])
-    masterlist[x][4] = usersort(masterlist[x][4])
+    masterlist[x][3] = alphasort(masterlist[x][3])
+    masterlist[x][4] = alphasort(masterlist[x][4])
     word = data[2]
     nletr = data[0]
     # There is probably a more elegant way to do this next line.
@@ -179,14 +176,14 @@ for data in masterlist:
     nc = nletr - nv
     nhpt = 0
     nXJZQ = 0
-    for lettr in 'PMBHFWYKCVXJZQ':
-        nhpt += word.count(lettr)
-    for lettr in 'XJZQ':
-        nXJZQ += word.count(lettr)
+    for letr in 'PMBHFWYKCVXJZQ':
+        nhpt += word.count(letr)
+    for letr in 'XJZQ':
+        nXJZQ += word.count(letr)
     nblanks = 0
-    for lettr in 'EAIOUSRTNLDGPMBHFWYKCVXJZQ':
-        if word.count(lettr) > tilecount[lettr]:
-            nblanks += word.count(lettr) - tilecount[lettr]
+    for letr in 'EAIOUSRTNLDGPMBHFWYKCVXJZQ':
+        if word.count(letr) > tilecount[letr]:
+            nblanks += word.count(letr) - tilecount[letr]
     taxondic[taxoncode([nletr,nblanks,nc,nhpt,nXJZQ])].append(data)
     x += 1
 
