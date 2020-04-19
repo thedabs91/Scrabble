@@ -315,7 +315,7 @@ def extract_hook(lname):
         output.append(outlist[k][1])
     return(output)
 
-def quiz_hook(list_len, userid = 'browndav', listname = True):
+def quiz_hook(list_len, userid, listname = True):
     hooklist = []
     c = conn.cursor()
     # It could be good to do multiple lists at the same time.
