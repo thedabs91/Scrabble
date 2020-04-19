@@ -1,7 +1,6 @@
 import sqlite3
 import random as r
 
-# I question the necessity of these first two functions
 def db_creator(filename):
     try:
         conn = sqlite3.connect(filename)
@@ -58,13 +57,32 @@ createtable = False
 database = "/home/david/Documents/Common Stuff/PythonPrograms/Scrabble/Users/database.db"
 conn = sqlite3.connect(database)
 
+# Table for anagram quizzes
 if createtable:
     drop_table(conn, 'DROP TABLE IF EXISTS quiz_anag')
     
     sql_create = """ CREATE TABLE IF NOT EXISTS quiz_anag(
                          user text NOT NULL,
-                         gram text PRIMARY KEY,
+                         gram text NOT NULL,
                          answers_twl text,
+                         num_cor integer,
+                         num_inc integer,
+                         wt_cor double,
+                         wt_inc double,
+                         prob_val double,
+                         FOREIGN KEY (user) REFERENCES users (user)
+                     ); """
+    create_table(conn, sql_create)
+
+# Table for hook quizzes
+if createtable:
+    drop_table(conn, 'DROP TABLE IF EXISTS quiz_hook')
+    
+    sql_create = """ CREATE TABLE IF NOT EXISTS quiz_hook(
+                         user text NOT NULL,
+                         word text NOT NULL,
+                         fhook text,
+                         bhook text,
                          num_cor integer,
                          num_inc integer,
                          wt_cor double,
@@ -97,7 +115,10 @@ def extract_list(lname):
     return(output)
 
 
-def quiz_anag(gramlist, userid = 'browndav', listname = True):
+# Creating a function for anagram quizzes
+# You can either use a list, saved as a python list
+# ... or a names of a word list from `gram_table`
+def quiz_anag(gramlist, userid, listname = True):
     
     # It could be good to do multiple lists at the same time.
     if listname:
@@ -233,6 +254,7 @@ def quiz_anag(gramlist, userid = 'browndav', listname = True):
             natt = new_cor + new_inc
             # This next line could be changed
             # To allow for a user specific number
+            # Controls the weighting of more recent responses
             new_wt_cor = qa_entries[k][5] + 1.3
             new_wt_cor *= natt/(natt+.3)
             new_wt_inc = qa_entries[k][6]*natt/(natt+.3)
@@ -283,4 +305,174 @@ def quiz_anag(gramlist, userid = 'browndav', listname = True):
     print('Thanks for quizzing!')
 
 
+# Hook quiz using databases
+def extract_hook(lname):
+    c = conn.cursor()
+    outlist = c.execute('SELECT * FROM hook_table WHERE listname = ?', (lname,))
+    outlist = outlist.fetchall()
+    output = []
+    for k in range(len(outlist)):
+        output.append(outlist[k][1])
+    return(output)
 
+def quiz_hook(list_len, userid, listname = True):
+    hooklist = []
+    c = conn.cursor()
+    # It could be good to do multiple lists at the same time.
+    if str(type(list_len)) == "<class 'int'>":
+        hookcheck = 'SELECT * FROM lexicon_twl WHERE length = ?'
+        datalist = c.execute(hookcheck, (list_len,))
+        datalist = datalist.fetchall()
+        for data in datalist:
+            hooklist.append(data[1])
+    
+    if str(type(list_len)) == "<class 'str'>":   
+        if listname:
+            hooklist = extract_hook(list_len)
+    
+    # Adding entries to quiz_hook if necessary.
+    for word in hooklist:
+        hookcheck = 'SELECT * FROM quiz_hook WHERE word = ?'
+        hookcheck = c.execute(hookcheck, (word,))
+        hookcheck = hookcheck.fetchall()
+        if len(hookcheck) == 0:
+            adddata = 'SELECT * FROM lexicon_twl WHERE word = ?'
+            adddata = c.execute(adddata, (word,))
+            adddata = adddata.fetchall()
+            hookadd = '''INSERT INTO quiz_hook(user, word, fhook, bhook,
+                                               num_cor, num_inc, wt_cor, wt_inc,
+                                               prob_val)
+                         VALUES(?,?,?,?,?,?,?,?,?)'''
+            c.execute(hookadd, (userid, word, adddata[0][9], adddata[0][10],\
+                                0,0,0,0,5))
+            conn.commit()
+    
+    print('You are quizzing!')   
+    
+    # Using the user specified letter order
+    ltrord = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
+    ltrord = ltrord.fetchall()
+    ltrord = ltrord[0][1]
+    
+    k = 0
+    # I would like to do this without a 'for' loop.
+    qh_entries = []
+    for k in range(len(hooklist)):
+        sql_search_qh = 'SELECT * FROM quiz_hook WHERE word = ? AND user = ?'
+        curr_entry = c.execute(sql_search_qh, (hooklist[k], userid))
+        curr_entry = curr_entry.fetchall()
+        qh_entries.append(curr_entry[0])
+    
+    k = 0
+    prb_list = []
+    for k in range(len(qh_entries)):
+        prb_list.append(qh_entries[k][8])
+    
+    # Now we will begin the quizzing
+    quiz = True
+    qatt = 0
+    qcor = 0
+    while quiz:
+        # numpy was hard to install on linux, so I didn't use it
+        prb_cumsum = my_cumsum(prb_list)
+        pick = r.random()*prb_cumsum[-1]
+        k = 0
+        while pick > prb_cumsum[k]:
+            k += 1
+        question = qh_entries[k][1]
+        fhook = resort(qh_entries[k][2], ltrord)
+        bhook = resort(qh_entries[k][3], ltrord)
+        endq = False
+        print(question)
+        replylist = []
+        fhook_ans = input('Front Hooks? ')
+        fhook_ans = fhook_ans.upper()
+        fhook_ans = resort(fhook_ans, ltrord)
+        bhook_ans = input('Back Hooks? ')
+        bhook_ans = bhook_ans.upper()
+        bhook_ans = resort(bhook_ans, ltrord)
+        if fhook_ans == 'Q' and bhook_ans == 'Q':
+            quiz = False
+        replylist.sort()
+        print('Front Hooks:')
+        print(fhook)
+        print(fhook_ans)
+        print('Back Hooks:')
+        print(bhook)
+        print(bhook_ans)
+        
+        answers = []
+        for ltr in fhook:
+            answers.append(ltr + question)
+        for ltr in bhook:
+            answers.append(question + ltr)
+        
+        answer_data = []
+        for word in answers:
+            sql = '''SELECT fhook, remfirst, word, remlast, bhook
+                     FROM lexicon_twl WHERE word = ?'''
+            word_props = c.execute(sql, (word,))
+            word_props = word_props.fetchall()
+            answer_data.append(word_props)
+        for datum in answer_data:
+            print(datum)
+        if quiz:
+            qatt += 1
+            if fhook_ans == fhook and bhook_ans == bhook:
+                qcor += 1
+                new_cor = qh_entries[k][4] + 1
+                new_inc = qh_entries[k][5]
+                natt = new_cor + new_inc
+                # This next line could be changed
+                # To allow for a user specific number
+                # Controls the weighting of more recent responses
+                new_wt_cor = qh_entries[k][6] + 1.3
+                new_wt_cor *= natt/(natt+.3)
+                new_wt_inc = qh_entries[k][7]*natt/(natt+.3)
+                if new_wt_inc >= new_wt_cor:
+                    new_prob = 1+new_wt_inc-new_wt_cor
+                else:
+                    new_prob = 1/(1+new_wt_cor-new_wt_inc)
+                qh_entries[k] = (qh_entries[k][0], qh_entries[k][1],\
+                                 qh_entries[k][2], qh_entries[k][3],\
+                                 new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob) 
+            else:
+                new_cor = qh_entries[k][4]
+                new_inc = qh_entries[k][5] + 1
+                natt = new_cor + new_inc
+                # This next line could be changed
+                # To allow for a user specific number
+                new_wt_inc = qh_entries[k][7] + 1.3
+                new_wt_inc *= natt/(natt+.3)
+                new_wt_cor = qh_entries[k][6]*natt/(natt+.3)
+                if new_wt_inc >= new_wt_cor:
+                    new_prob = 1+new_wt_inc-new_wt_cor
+                else:
+                    new_prob = 1/(1+new_wt_cor-new_wt_inc)
+                qh_entries[k] = (qh_entries[k][0], qh_entries[k][1],\
+                                 qh_entries[k][2], qh_entries[k][3],\
+                                 new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob)
+            print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
+                  str(round(new_prob,2)))
+            # Updating the database
+            sql = '''UPDATE quiz_hook
+                     SET num_cor = ?,
+                         num_inc = ?,
+                         wt_cor = ?,
+                         wt_inc = ?,
+                         prob_val = ?
+                     WHERE word = ?'''
+            c.execute(sql, (qh_entries[k][4],\
+                            qh_entries[k][5],\
+                            qh_entries[k][6],\
+                            qh_entries[k][7],\
+                            qh_entries[k][8],\
+                            qh_entries[k][1]))
+            conn.commit()
+            # Updating probabilities
+            prb_list[k] = qh_entries[k][8]
+    
+    # Displaying statistics
+    print('Questions Correct:   ' + str(qcor) + '\n')
+    print('Questions Attempted: ' + str(qatt) + '\n')
+    print('Thanks for quizzing!')

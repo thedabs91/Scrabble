@@ -5,7 +5,7 @@ conn = sqlite3.connect(database)
 
 c = conn.cursor()
 
-# I should think about when I would like to recreate the gram_table.
+# Creating a table for anagram quizzes.
 readd = False
 
 if readd:
@@ -31,10 +31,35 @@ if readd:
         prevgram = LPB_entries[k][0]
     conn.commit()
 
+# Creating a table for hooks
+readd = False
 
-# I would also like to think about making the above a function.
-# I want to be able to add lists easily.
+if readd:
+    c.execute('DROP TABLE IF EXISTS hook_table')
 
+hook_table_sql = '''CREATE TABLE IF NOT EXISTS hook_table(
+                        listname text NOT NULL,
+                        word text NOT NULL,
+                        fhook text NOT NULL,
+                        bhook text NOT NULL
+                    );'''
+c.execute(hook_table_sql)
+
+if readd:
+    manyhook_bingo_sql = 'SELECT * FROM lexicon_twl WHERE length > 5 AND length < 9'
+    manyhook_bingo_sql = c.execute(manyhook_bingo_sql)
+    manyhook_bingo_sql = manyhook_bingo_sql.fetchall()
+    for k in range(len(manyhook_bingo_sql)):
+        fhook = manyhook_bingo_sql[k][9]
+        bhook = manyhook_bingo_sql[k][10]
+        if len(fhook) + len(bhook) > 4:
+            add_sql = '''INSERT INTO hook_table(listname, word, fhook, bhook)
+                         VALUES('ManyHook68', ?,?,?)'''
+            c.execute(add_sql, (manyhook_bingo_sql[k][1], fhook, bhook))
+    conn.commit()
+
+
+# Other useful functions
 
 def strsort(string):
     list = []
@@ -75,6 +100,22 @@ pt_dic = {'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1,\
           'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4,\
           'Z':10, '?': 0}
 
+
+def judge(string):
+    judgment = True
+    string = string.upper()
+    string = string.split(',')
+    judgtuple = []
+    for word in string:
+        word = word.strip()
+        judge_sql = 'SELECT * FROM lexicon_twl WHERE word = ?'
+        judge_entry = c.execute(judge_sql, (word,))
+        judge_entry = judge_entry.fetchall()
+        if len(judge_entry) == 0:
+            judgment = False
+            break
+    return(judgment)
+
 def search_anag(gram):
     gram = gram.upper()
     gram = strsort(gram)
@@ -82,7 +123,6 @@ def search_anag(gram):
     anag_entries = c.execute(search_sql, (gram,))
     anag_entries = anag_entries.fetchall()
     return(anag_entries)
-
 
 def search_blanag(gram):
     output = []
@@ -193,7 +233,6 @@ def search_subgram(gram, lengthmin, lengthmax):
 
 
 
-
 # I am not sure if how much I want the list to be pared down
 def save_entries(entrylist, name):
     prevgram = ''
@@ -214,37 +253,14 @@ def save_grams(gramlist, name):
     conn.commit()
 
 
-# Now I will add a few lists
+# Now I will add a few lists for examples
 add_list = False
-
-if False:
-    HighFive = search_list(['length = 5', 'score > 10'])
-    HighSix = search_list(['length = 6', 'score > 14'])
-    save_entries(HighFive, 'HighFive')
-    save_entries(HighSix, 'HighSix')
-    FiveVBingo = search_list(['length in (7,8)', 'vowels >= 5'])
-    FourVSix = search_list(['length = 6', 'vowels >= 4'])
-    FourVSeven = search_list(['length = 7', 'vowels = 4'])
-    SixVNine = search_list(['length = 9', 'vowels >= 6'])
-    save_entries(FiveVBingo, 'FiveVBingo')
-    save_entries(FourVSix, 'FourVSix')
-    save_entries(FourVSeven, 'FourVSeven')
-    save_entries(SixVNine, 'SixVNine')
 
 if add_list:
     DeregBingo = search_subgram('DEREGULATIONS', 7, 8)
     DeregNine = search_subgram('DEREGULATIONS', 9, 9)
-    NarcoDeregBingo = search_subgram('NARCOTISEDEREGULATIONS', 7, 8)
-    NarcoDeregNine = search_subgram('NARCOTISEDEREGULATIONS', 9, 9)
+    HighFive = search_list(['length = 5', 'score > 10'])
     save_entries(DeregBingo, 'DeregBingo')
     save_entries(DeregNine, 'DeregNine')
-    save_entries(NarcoDeregBingo, 'NarcoDeregBingo')
-    save_entries(NarcoDeregNine, 'NarcoDeregNine')
+    save_entries(HighFive, 'HighFive')
     conn.commit()
-
-
-
-
-
-
-

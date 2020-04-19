@@ -53,8 +53,9 @@ def alphasort(string):
 database = "/home/david/Documents/Common Stuff/PythonPrograms/Scrabble/Users/database.db"
 conn = db_connector(database)
 
-# First step: creating the table
-
+# First step: creating the table for the lexicon
+# The name is `lexicon_twl` because the word list used was the TWL lexicon
+# ... well actually the NWL, but I prefer the name TWL.
 
 lexicon_table = """ CREATE TABLE IF NOT EXISTS lexicon_twl(
                         gram text NOT NULL,
@@ -103,11 +104,3 @@ for line in file:
 file.close()
 
 # This seems to have worked!
-
-
-
-
-
-
-
-

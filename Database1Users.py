@@ -55,6 +55,3 @@ def create_user(conn, username, ltrorder):
     userrow = (username, ltrorder)
     cur.execute(sql, userrow)
     return(cur.lastrowid)
-
-
-
