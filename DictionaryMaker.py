@@ -2,8 +2,7 @@
 # ... with the information I want from a wordlist
 # ... chosen by the user.
 
-# Right now, this is a bit of a dump, but I hope to make it more organized
-
+# Importing the os module
 import os
 
 # Opening a file that lists all words in a text document
@@ -76,11 +75,11 @@ def alphasort(word):
     return(output)
 
 # I do not know if this is useful
-def userltonfun(word):
-    output = []
-    for letr in word:
-        output.append(userlton[letr])
-    return(output) 
+#def userltonfun(word):
+#    output = []
+#    for letr in word:
+#        output.append(userlton[letr])
+#    return(output) 
 
 # This will stay
 def taxoncode(list):
@@ -107,11 +106,7 @@ for letrs in range(2,16):
 
 # Adding and sorting the words to my new list
 
-
-# import WordJudge
-
-
-# Adding Data to the words
+# Adding data to the words
 masterlist = []
 Alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 for word in allwords:
@@ -164,7 +159,7 @@ masterlist.sort()
 
 print('Word data added!')
 
-# I'm going to need to edit this to work.
+# Creating a dictionary for my taxa.
 x = 0
 for data in masterlist:
     masterlist[x][3] = alphasort(masterlist[x][3])
@@ -207,7 +202,7 @@ for letrs in range(2,16):
                     temptaxon = []
                     # This is where it is ordered
                     for elt in taxondic[taxoncode([letrs,blanks,cons,hpt,XJZQ])]:
-                        elt[0] = userltonfun(elt[1])
+                        #elt[0] = userltonfun(elt[1])
                         temptaxon.append(elt)
                     temptaxon.sort()
                     # Now it is being replaced
