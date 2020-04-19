@@ -20,50 +20,15 @@ wordsfile.close()
 
 # I have currently decided to save everything as alphabetical
 # and allow for different ordering when these are saved to databases.
-userlton = {'E':1,'A':2,'I':3,'O':4,'U':5,'S':6,\
-              'R':7,'T':8,'N':9,'L':10,'D':11,'G':12,\
-              'P':13,'M':14,'B':15,'H':16,'F':17,'W':18,\
-              'Y':19,'K':20,'C':21,'V':22,'X':23,'J':24,\
-              'Z':25,'Q':26}
-userntol = {1:'E',2:'A',3:'I',4:'O',5:'U',6:'S',\
-              7:'R',8:'T',9:'N',10:'L',11:'D',12:'G',\
-              13:'P',14:'M',15:'B',16:'H',17:'F',18:'W',\
-              19:'Y',20:'K',21:'C',22:'V',23:'X',24:'J',\
-              25:'Z',26:'Q'}
+
 tilecount = {'A':9,'B':2,'C':2,'D':4,'E':12,'F':2,'G':3,\
              'H':2,'I':9,'J':1,'K':1,'L':4,'M':2,'N':6,\
              'O':8,'P':2,'Q':1,'R':6,'S':4,'T':6,'U':4,\
              'V':2,'W':2,'X':1,'Y':2,'Z':1,'?':2}
 
-''' 
-def convertlton(list):
-    output = []
-    for x in range(4):
-        sec = []
-        for letr in list[x]:
-            sec.append(dscrablton[letr])
-        output.append(sec)
-    for x in range(4,6):
-        output.append(list[x])
-    output[0].sort()
-    output[2].sort()
-    output[3].sort()
-    return output
-
-def convertntol(list):
-    output = []
-    for x in range(4):
-        seq = ''
-        for num in list[x]:
-            seq += dscrabntol[num]
-        output.append(seq)
-    for x in range(4,6):
-        output.append(list[x])
-    return output
-'''
 
 # Writing functions
-# This will stay
+# Sorting letters in alphabetical order
 def alphasort(word):
     listword = []
     for letr in word:
@@ -74,14 +39,8 @@ def alphasort(word):
         output = output + letr
     return(output)
 
-# I do not know if this is useful
-#def userltonfun(word):
-#    output = []
-#    for letr in word:
-#        output.append(userlton[letr])
-#    return(output) 
-
-# This will stay
+# Creating a code for taxa
+# The taxa make it easy to identify certain properties of the word
 def taxoncode(list):
     output = ''
     for item in list:
@@ -124,12 +83,6 @@ for word in allwords:
 Lengths = [0]
 y = 0
 for x in range(len(masterlist)):
-    #if x != len(masterlist) - 1:
-    #    if masterlist[x][0] != masterlist[x+1][0]:
-    #        Lengths.append(x+1)
-    #        y += 1
-    #else:
-    #    Lengths.append(x+1)
     word = masterlist[x][2]
     if len(word) > 2:
         c = 0
@@ -202,7 +155,6 @@ for letrs in range(2,16):
                     temptaxon = []
                     # This is where it is ordered
                     for elt in taxondic[taxoncode([letrs,blanks,cons,hpt,XJZQ])]:
-                        #elt[0] = userltonfun(elt[1])
                         temptaxon.append(elt)
                     temptaxon.sort()
                     # Now it is being replaced
@@ -230,9 +182,7 @@ for data in wordlist:
     dicanary.write('\r\n')
 dicanary.close()
 
-
 print(Lengths)
-
 
 
 # Adding the taxon dictionary.
@@ -242,5 +192,3 @@ for entry in taxondicnum:
     file.write(entry + ' ')
     file.write(str(taxondicnum[entry][0]) + ',' + str(taxondicnum[entry][1]) + '\r\n')
 file.close()
-
-
