@@ -28,7 +28,8 @@ for line in words_del:
 words_del.close()
 
 # Creating place for new list
-list_new = [].extend(list_orig)
+list_new = []
+list_new.extend(list_orig)
 
 # Deleting deletions
 for word in list_del:
