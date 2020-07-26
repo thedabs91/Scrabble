@@ -5,7 +5,8 @@ words_orig = file.open('Words/words_orig', 'r')
 list_orig = []
 for line in words_orig:
   word = line.strip('\r')
-  word = line.strip('\n')
+  word = word.strip('\n')
+  word = word.upper()
   list_orig.append(word)
 words_orig.close()
 
@@ -14,7 +15,8 @@ words_add = file.open('Words/words_add', 'r')
 list_add = []
 for line in words_add:
   word = line.strip('\r')
-  word = line.strip('\n')
+  word = word.strip('\n')
+  word = word.upper()
   list_add.append(word)
 words_add.close()
 
@@ -23,7 +25,8 @@ words_del = file.open('Words/words_del', 'r')
 list_del = []
 for line in words_del:
   word = line.strip('\r')
-  word = line.strip('\n')
+  word = word.strip('\n')
+  word = word.upper()
   list_del.append(word)
 words_del.close()
 
