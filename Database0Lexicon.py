@@ -105,7 +105,7 @@ def multicount(string, ltrs):
         output += string.count(ltr)
     return (output)
 
-file = open('Words/DscrabDic', 'r')
+file = open('Words/UpdatedDic', 'r')
 for line in file:
     line = line.rstrip('\n')
     line = line.split(',')
