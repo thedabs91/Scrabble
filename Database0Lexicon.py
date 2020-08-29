@@ -55,9 +55,10 @@ conn = db_connector(database)
 
 # First step: creating the table for the lexicon
 # The name is `lexicon_twl` because the word list used was the TWL lexicon
-# ... well actually the NWL, but I prefer the name TWL.
+# ... well actually the NWL, but I prefer the old name of TWL.
+# Similar code can also be used for other lexica
 
-lexicon_table = """ CREATE TABLE IF NOT EXISTS lexicon_twl(
+lex_twl_table = """ CREATE TABLE IF NOT EXISTS lexicon_twl(
                         gram text NOT NULL,
                         word text PRIMARY KEY,
                         length integer,
@@ -72,11 +73,31 @@ lexicon_table = """ CREATE TABLE IF NOT EXISTS lexicon_twl(
                     );"""
 
 if conn is not None:
-    create_table(conn, lexicon_table)
+    create_table(conn, lex_twl_table)
 
+# Now I will show the csw_table. Nothing will be done for now,
+# ... but it will return later.
+
+lex_csw_table = """ CREATE TABLE IF NOT EXISTS lex_csw_twl(
+                        gram text NOT NULL,
+                        word text PRIMARY KEY,
+                        length integer,
+                        score integer,
+                        vowels integer,
+                        threeplus integer,
+                        jqxz integer,
+                        remfirst integer,
+                        remlast integer,
+                        fhook text,
+                        bhook text
+                    );"""
+
+if conn is not None:
+    create_table(conn, lex_csw_table)
 
 
 # Second Step: adding the words
+# For now, this will only be for the TWL table.
 
 def multicount(string, ltrs):
     output = 0
