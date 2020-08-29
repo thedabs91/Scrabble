@@ -6,9 +6,10 @@ This contains code to create a record of hooks and alphagrams out of a word list
 
 * Start with a list of words (spelled in capital letters).
 * If the list needs to be updated with additions and/or deletions, use `WordListUpdater.py`
-* Run `DictionaryMaker.py` to extract additional information about hooks and anagrams
-* Run `Database0Lexicon.py` to create a database to store the words.
+* Run `DictionaryMaker.py` to extract additional information about hooks and anagrams and store in a text file.
+* Run `Database0Lexicon.py` to store the information from the text file to a database.
 * Run `Database1Users.py` to add a table for different users.
 * Run `Database2Lister.py` to create word lists to aid in studying.
     - There are also tools to search the word lists in `Database2Lister.py`
 * Run `Database3Quizzer.py` to quiz yourself on hooks and anagrams!
+    - These quizzes will show the words with probabilities such that questions you get wrong or have not yet seen appear less often.
