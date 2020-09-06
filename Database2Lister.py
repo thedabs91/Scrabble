@@ -1,6 +1,6 @@
 import sqlite3
 
-database = "/home/david/Documents/Common Stuff/PythonPrograms/Scrabble/Users/database.db"
+database = "Scrabble_Database.db"
 conn = sqlite3.connect(database)
 
 c = conn.cursor()
