@@ -1,7 +1,7 @@
 # This is a file that will take my current lexicon, and convert it to a table in my database.
 
 import sqlite3
-
+# Set `db_file` equal to: 'Scrabble_Database.db'
 def db_connector(db_file):
     """ create a database connection to the SQLite database
         specified by db_file
