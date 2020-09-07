@@ -35,7 +35,7 @@ for entry in threefourentries:
 threefourlist.sort()
 
 
-file = open('Words/HookList34', 'w')
+file = open('Words/HookList34_nwl18.txt', 'w')
 # Determining the length to add spaces
 maxf = 0
 for x in range(len(threefourlist)):
