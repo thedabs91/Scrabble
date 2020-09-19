@@ -53,11 +53,7 @@ def hook_db(lexicon):
             c.execute(add_sql, (manyhook_bingo_sql[k][1], fhook, bhook))
     conn.commit()
 
-
-# I would also like to think about making the above a function.
-# I want to be able to add lists easily.
-
-
+# These functions are to be used internally
 def alphasort(string):
     list = []
     for char in string:
@@ -89,7 +85,6 @@ def let_dic(string):
         str_dic[ltr] = string.count(ltr)
     return(str_dic)
         
-
 pt_dic = {'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1,\
           'F': 4, 'G': 2, 'H': 4, 'I': 1, 'J': 8,\
           'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1,\
@@ -97,6 +92,7 @@ pt_dic = {'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1,\
           'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4,\
           'Z':10, '?': 0}
 
+# These functions are for users to call
 def judge(string, lexicon):
     judgment = True
     string = string.upper()
@@ -113,16 +109,19 @@ def judge(string, lexicon):
     return(judgment)
 
 
-def search_anag(gram, lexicon):
+def search_anag(gram, lexicon, full_data = True):
     gram = gram.upper()
     gram = alphasort(gram)
     search_sql = 'SELECT * FROM lexicon_' + lexicon + ' WHERE gram = ?'
     anag_entries = c.execute(search_sql, (gram,))
     anag_entries = anag_entries.fetchall()
+    if not full_data:
+        for k in range(len(anag_entries)):
+            anag_entries[k] = anag_entries[k][1]
     return(anag_entries)
 
 
-def search_blanag(gram, lexicon):
+def search_blanag(gram, lexicon, full_data = True):
     output = []
     numlt = len(gram)
     gram = gram.upper()
@@ -152,6 +151,9 @@ def search_blanag(gram, lexicon):
                 break
         if add:
             output.append(testcase)
+    if not full_data:
+        for k in range(len(output)):
+            output[k] = output[k][1]
     return(output)
 
 
@@ -166,7 +168,8 @@ def search_list(searchlist, lexicon):
     search_string = ''
     for k in range(len(searchlist)):
         if search_names[k] in ('length', 'score', 'vowels', 'jqxz', 'threeplus',\
-                               'remfirst', 'remlist', 'fhook', 'bhook'):
+                               'remfirst', 'remlist', 'fhook', 'bhook',\
+                               'nrack', 'nrack_adj'):
             if k==0:
                 search_string += searchlist[k]
             else:
@@ -181,8 +184,10 @@ def search_list(searchlist, lexicon):
 def search_input(lexicon):
     # This will be a function with different criteria that
     # Can be searched.
-    print('You can select the following: minlength, maxlength,')
-    print('vowels, jqxz, threeplus, points, includes, subgram.')
+    print('You can select the following characteristics:'
+    print('minlength, maxlength, vowels, jqxz, threeplus,')
+    print('points, includes, subgram, nrack, nrack_adj.')
+    print('Please include a space after each characteristic.')
     print('Input "done" when you are finished.')
     print('Please specify a selection.')
     reply = ''
