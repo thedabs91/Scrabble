@@ -1,18 +1,62 @@
 Steps:
- 1) Save the files to create the word lists in "Words".
- 2) Put those filenames in the appropriate place in "WordListUpdater.py" to
+ 1) Save the ".py" files a folder somewhere on your computer to, and save any
+      word lists to create dictionaries in "Words".
+ 2) Open python in 
+ 3) Put those filenames in the appropriate place in "WordListUpdater.py" to
       create the word list that you need.
- 3) Import "DictionaryMaker.py" as "dm" in a python command line and run the
-      following line of code:
     
-    >>> dm.text_data_add(filename)
+    > python WordListUpdater.py
     
-      where "filename" is replaced by the name of the file.
- 4) Change the name of the file to "UpdatedDic_lexYYYY.txt", where "lexYYYY" is 
+ 4) Import "DictionaryMaker.py" as "dm" in a python and create a text file
+      including information about hooks and anagrams with the following code:
+    
+    >>> import DictionaryMaker as dm
+    >>> dm.text_data_add('filename')
+    
+      where `filename` is replaced by the name of the file.
+ 5) Change the name of the file to "UpdatedDic_lexYYYY.txt", where `lexYYYY` is 
       replaced by the name and year of the lexicon you plan to use.
- 5) Once all lexica are created, then you can start making the databases.
- 6) In python, import "Database0Lexicon.py" as d0 and type the following lines of
-      code:
+ 6) Once all lexica are created, then you can start making the databases.
+ 7) In python, import "Database0Lexicon.py" as d0 and create the databases with
+      the following code:
     
-    >>> d0.lex_table(lexYYYY)
-    >>> d0.lex_db(lexYYYY)
+    >>> import Database0Lexicon as d0
+    >>> d0.lex_table('lexYYYY')
+    >>> d0.lex_db('lexYYYY')
+    
+ 8) Now the database should be created. I we can create users
+ 9) In python, import "Database1Users.py" in python and create your user account
+      using the following code:
+    
+    >>> import Database1Users as d1
+    >>> d1.create_user('username', ['ltrorder'])
+    
+    Here, `username` should be replaced with the username that you wish to use.
+    The optional second argument is the order you want letters to show in
+      quizzes. The default is alphabetical.
+    
+10) Now that you have created a username, you can use quizzes.
+11) I will now discuss "Database2Lister.py". This file could actually have been
+      used before creating a username. It allows you to search the databases and
+      create lists to use in quizzes. I will summarize some key functions below.
+    
+    gram_db - creates a database for words to be used in anagram quizzes
+    hook_db - creates a database for words to be used in hook quizzes
+      note: the programs above require specification of a lexicon.
+    
+    judge - Can check if a list of words (separated by commas, spacing is
+              unimportant; first argument) is in the specified lexicon (second
+              argument).
+    search_anag/search_blanag - finds words using all letters in a specified
+                                  rack. "search_blanag" allows for blanks (?).
+    search_subgram - searches for words found within a string of letters of a
+                       user-specified length.
+    search_list - a function that can search for words with specified
+                    characteristics.
+    search_input - I am unsure if this works now.
+    
+    save_entries - saves lists of acceptable words to the gram database. Very
+                     useful to use after a search from "search_list".
+    save_grams - saves lists of grams
+    
+12) Now I will talk about how to use quizzes.
