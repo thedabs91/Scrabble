@@ -31,7 +31,7 @@ def create_table(conn, create_table_sql):
 
 
 # Creating the 'users' table
-database = "/home/david/Documents/Common Stuff/PythonPrograms/Scrabble/Users/database.db"
+database = "Scrabble_Database.db"
 
 sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
                                  user text PRIMARY KEY,
