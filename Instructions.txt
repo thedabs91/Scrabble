@@ -1,0 +1,18 @@
+Steps:
+ 1) Save the files to create the word lists in "Words".
+ 2) Put those filenames in the appropriate place in "WordListUpdater.py" to
+      create the word list that you need.
+ 3) Import "DictionaryMaker.py" as "dm" in a python command line and run the
+      following line of code:
+    
+    >>> dm.text_data_add(filename)
+    
+      where "filename" is replaced by the name of the file.
+ 4) Change the name of the file to "UpdatedDic_lexYYYY.txt", where "lexYYYY" is 
+      replaced by the name and year of the lexicon you plan to use.
+ 5) Once all lexica are created, then you can start making the databases.
+ 6) In python, import "Database0Lexicon.py" as d0 and type the following lines of
+      code:
+    
+    >>> d0.lex_table(lexYYYY)
+    >>> d0.lex_db(lexYYYY)
