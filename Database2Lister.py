@@ -14,7 +14,7 @@ def gram_db(lexicon):
     c.execute(gram_table_sql)
     
     LPB_sql = 'SELECT * FROM lexicon_' + lexicon +\
-              ' WHERE length > 6 AND length < 10 AND threeplus = 0'
+              ' WHERE length > 6 AND length < 9 AND threeplus = 0'
     LPB_entries = c.execute(LPB_sql)
     LPB_entries = LPB_entries.fetchall()
     prevgram = ''
@@ -48,7 +48,8 @@ def hook_db(lexicon):
         fhook = manyhook_bingo_sql[k][9]
         bhook = manyhook_bingo_sql[k][10]
         if len(fhook) + len(bhook) > 4:
-            add_sql = '''INSERT INTO hook_table(listname, word, fhook, bhook)
+            add_sql = 'INSERT INTO hook_table_' + lexicon +\
+                      '''(listname, word, fhook, bhook)
                          VALUES('ManyHook68', ?,?,?)'''
             c.execute(add_sql, (manyhook_bingo_sql[k][1], fhook, bhook))
     conn.commit()
@@ -150,10 +151,10 @@ def search_blanag(gram, lexicon, full_data = True):
                 add = False
                 break
         if add:
-            output.append(testcase)
-    if not full_data:
-        for k in range(len(output)):
-            output[k] = output[k][1]
+            if full_data:
+                output.append(testcase)
+            else:
+                output.append(testcase[1])
     return(output)
 
 
@@ -184,7 +185,7 @@ def search_list(searchlist, lexicon):
 def search_input(lexicon):
     # This will be a function with different criteria that
     # Can be searched.
-    print('You can select the following characteristics:'
+    print('You can select the following characteristics:')
     print('minlength, maxlength, vowels, jqxz, threeplus,')
     print('points, includes, subgram, nrack, nrack_adj.')
     print('Please include a space after each characteristic.')
@@ -199,7 +200,7 @@ def search_input(lexicon):
     outlist = search_list(replylist, lexicon = lexicon)
     return(outlist)
 
-def search_subgram(gram, lengthmin, lengthmax, lexicon):
+def search_subgram(gram, lengthmin, lengthmax, lexicon, full_data = True):
     gram = gram.upper()
     nb = gram.count('?')
     gram_jqxz = multicount(gram, 'JQXZ') + nb
@@ -237,7 +238,10 @@ def search_subgram(gram, lengthmin, lengthmax, lexicon):
         if dg_sum < len(data_gram):
             include = False
         if include:
-            output_list.append(data)
+            if full_data:
+                output_list.append(data)
+            else:
+                output.append(data[1])
     return(output_list)
 
 
