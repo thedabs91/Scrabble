@@ -51,34 +51,54 @@ def resort(word, ltrord):
         output = output + ltrord[elt]
     return(output)
 
-# This can be changed, if I want a new format.
-createtable = False
-
+# Rewriting to be a function
 database = "Scrabble_Database.db"
 conn = sqlite3.connect(database)
 
 # Table for anagram quizzes
-if createtable:
-    drop_table(conn, 'DROP TABLE IF EXISTS quiz_anag')
+def quiz_anag_db_drop(lexicon):
+    drop_table(conn, 'DROP TABLE IF EXISTS quiz_anag_' + lexicon)
     
-    sql_create = """ CREATE TABLE IF NOT EXISTS quiz_anag(
-                         user text NOT NULL,
-                         gram text NOT NULL,
-                         answers_twl text,
-                         num_cor integer,
-                         num_inc integer,
-                         wt_cor double,
-                         wt_inc double,
-                         prob_val double,
-                         FOREIGN KEY (user) REFERENCES users (user)
-                     ); """
+def quiz_anag_db(lexicon):
+    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_anag_' + lexicon +\
+                 '''(   
+                        user text NOT NULL,
+                        gram text NOT NULL,
+                        answers text,
+                        num_cor integer,
+                        num_inc integer,
+                        wt_cor double,
+                        wt_inc double,
+                        prob_val double,
+                        FOREIGN KEY (user) REFERENCES users (user)
+                    );'''
     create_table(conn, sql_create)
+    conn.commit
+
+def quiz_anag_bilex_db(lex1, lex2):
+    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_anag_' + lex1+'_'+lex2 +\
+                 '''(   
+                        user text NOT NULL,
+                        gram text NOT NULL,
+                        answers1 text,
+                        answers2 text,
+                        num_cor integer,
+                        num_inc integer,
+                        wt_cor double,
+                        wt_inc double,
+                        prob_val double,
+                        FOREIGN KEY (user) REFERENCES users (user)
+                    );'''
+    create_table(conn, sql_create)
+    conn.commit
 
 # Table for hook quizzes
-if createtable:
-    drop_table(conn, 'DROP TABLE IF EXISTS quiz_hook')
-    
-    sql_create = """ CREATE TABLE IF NOT EXISTS quiz_hook(
+def quiz_hook_db_drop(lexicon):
+    drop_table(conn, 'DROP TABLE IF EXISTS quiz_hook_' + lexicon)
+
+def quiz_hook_db(lexicon):
+    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_hook_' + lexicon +\
+                  '''(
                          user text NOT NULL,
                          word text NOT NULL,
                          fhook text,
@@ -89,8 +109,28 @@ if createtable:
                          wt_inc double,
                          prob_val double,
                          FOREIGN KEY (user) REFERENCES users (user)
-                     ); """
+                     );'''
     create_table(conn, sql_create)
+    conn.commit()
+
+def quiz_hook_bilex_db(lex1, lex2):
+    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_hook_' + lex1+'_'+lex2 +\
+                  '''(
+                         user text NOT NULL,
+                         word text NOT NULL,
+                         fhook1 text,
+                         fhook2 text,
+                         bhook1 text,
+                         bhook2 text,
+                         num_cor integer,
+                         num_inc integer,
+                         wt_cor double,
+                         wt_inc double,
+                         prob_val double,
+                         FOREIGN KEY (user) REFERENCES users (user)
+                     );'''
+    create_table(conn, sql_create)
+    conn.commit()
 
 
 # To create users, if desired
@@ -101,13 +141,14 @@ def create_user(conn, username, ltrorder):
     sql = ''' INSERT INTO users(user, letterorder)
               VALUES(?,?) '''
     cur = conn.cursor()
+    ltrorder = letrorder.upper()
     userrow = (username, ltrorder)
     cur.execute(sql, userrow)
     return(cur.lastrowid)
 
-def extract_list(lname):
+def extract_list(lname, lexicon):
     c = conn.cursor()
-    outlist = c.execute('SELECT * FROM gram_table WHERE listname = ?', (lname,))
+    outlist = c.execute('SELECT * FROM gram_table_' + lexicon + ' WHERE listname = ?', (lname,))
     outlist = outlist.fetchall()
     output = []
     for k in range(len(outlist)):
@@ -118,11 +159,11 @@ def extract_list(lname):
 # Creating a function for anagram quizzes
 # You can either use a list, saved as a python list
 # ... or a names of a word list from `gram_table`
-def quiz_anag(gramlist, userid, listname = True):
+def quiz_anag(gramlist, userid, lexicon, listname = True):
     
     # It could be good to do multiple lists at the same time.
     if listname:
-        gramlist = extract_list(gramlist)
+        gramlist = extract_list(gramlist, lexicon)
     c = conn.cursor()
     
     print('You are quizzing!')   
@@ -136,7 +177,8 @@ def quiz_anag(gramlist, userid, listname = True):
     # I would like to do this without a 'for' loop.
     qa_entries = []
     for k in range(len(gramlist)):
-        sql_search_qa = 'SELECT * FROM quiz_anag WHERE gram = ? AND user = ?'
+        sql_search_qa = 'SELECT * FROM quiz_anag_' + lexicon +\
+                        ' WHERE gram = ? AND user = ?'
         curr_entry = c.execute(sql_search_qa, (gramlist[k], userid))
         curr_entry = curr_entry.fetchall()
         #print(str(k), curr_entry)
@@ -156,7 +198,7 @@ def quiz_anag(gramlist, userid, listname = True):
         lex_entries = []
         for k in range(len(gramlist)):
             #print(gramlist[k])
-            sql_search_lex = 'SELECT * FROM lexicon_twl WHERE gram = ?'
+            sql_search_lex = 'SELECT * FROM lexicon_' + lexicon + ' WHERE gram = ?'
             curr_entry = c.execute(sql_search_lex, (gramlist[k],))
             lex_entries.extend(curr_entry.fetchall())
             #if len(lex_entries) > 0:
@@ -166,13 +208,13 @@ def quiz_anag(gramlist, userid, listname = True):
         answers = ''
         for k in range(len(lex_entries)):
             gram = lex_entries[k][0]
-            #print(str(len(answers.split('_'))), gram, gramprev, sep = ' ')
             if k > 0 and gram != gramprev:
                 if answers == '':
                     print(k)
                     print(gramprev)
                     break
-                sql = '''INSERT INTO quiz_anag(user,gram,answers_twl,num_cor,num_inc,wt_cor,wt_inc,prob_val)
+                sql = 'INSERT INTO quiz_anag_' + lexicon +\
+                      '''(user,gram,answers,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                          VALUES(?,?,?,?,?,?,?,?)'''
                 c.execute(sql, (userid, gramprev, answers, 0,0,0,0,5))
                 qa_entries.append((userid, gramprev, answers, 0,0,0,0,5))
@@ -187,7 +229,8 @@ def quiz_anag(gramlist, userid, listname = True):
                 answers = answers + '_' + lex_entries[k][1]
             gramprev = lex_entries[k][0]
         
-        sql = '''INSERT INTO quiz_anag(user,gram,answers_twl,num_cor,num_inc,wt_cor,wt_inc,prob_val)
+        sql = 'INSERT INTO quiz_anag_' + lexicon +\
+              '''(user,gram,answers,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                  VALUES(?,?,?,?,?,?,?,?)'''
         c.execute(sql, (userid, gramprev, answers, 0,0,0,0,5))
         qa_entries.append((userid, gramprev, answers, 0,0,0,0,5))
@@ -201,7 +244,8 @@ def quiz_anag(gramlist, userid, listname = True):
     # If anything is left, it has no anagrams
     if len(gramlist) > 0:
         for gram in gramlist:
-            sql = '''INSERT INTO quiz_anag(user,gram,answers_twl,num_cor,num_inc,wt_cor,wt_inc,prob_val)
+            sql = 'INSERT INTO quiz_anag_' + lexicon +\
+                  '''(user,gram,answers,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                      VALUES(?,?,?,?,?,?,?,?)'''
             c.execute(sql, (userid, gram, '', 0,0,0,0,5))
             qa_entries.append((userid, gram, '', 0,0,0,0,5))
@@ -240,7 +284,7 @@ def quiz_anag(gramlist, userid, listname = True):
         answer_data= []
         for word in answers:
             sql = '''SELECT fhook, remfirst, word, remlast, bhook
-                     FROM lexicon_twl WHERE word = ?'''
+                     FROM lexicon_''' + lexicon + ' WHERE word = ?'
             word_props = c.execute(sql, (word,))
             word_props = word_props.fetchall()
             answer_data.append(word_props)
@@ -282,8 +326,8 @@ def quiz_anag(gramlist, userid, listname = True):
         print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
               str(round(new_prob,2)))
         # Updating the database
-        sql = '''UPDATE quiz_anag
-                 SET num_cor = ?,
+        sql = 'UPDATE quiz_anag_' + lexicon +\
+              '''SET num_cor = ?,
                      num_inc = ?,
                      wt_cor = ?,
                      wt_inc = ?,
