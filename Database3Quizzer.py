@@ -27,8 +27,7 @@ def drop_table(conn, table_drop_sql):
         print(e)
 
 def create_table(conn, create_table_sql):
-    # Adapted from the sqlite tutorial used in '02TableCreation.py'
-    
+    # Adapted from a sqlite tutorial.
     try:
         c = conn.cursor()
         c.execute(create_table_sql)
@@ -327,12 +326,12 @@ def quiz_anag(gramlist, userid, lexicon, listname = True):
               str(round(new_prob,2)))
         # Updating the database
         sql = 'UPDATE quiz_anag_' + lexicon +\
-              '''SET num_cor = ?,
-                     num_inc = ?,
-                     wt_cor = ?,
-                     wt_inc = ?,
-                     prob_val = ?
-                 WHERE gram = ?'''
+              ''' SET num_cor = ?,
+                      num_inc = ?,
+                      wt_cor = ?,
+                      wt_inc = ?,
+                      prob_val = ?
+                  WHERE gram = ?'''
         c.execute(sql, (qa_entries[k][3],\
                         qa_entries[k][4],\
                         qa_entries[k][5],\
