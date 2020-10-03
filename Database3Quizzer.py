@@ -158,7 +158,7 @@ def extract_list(lname, lexicon):
 # Creating a function for anagram quizzes
 # You can either use a list, saved as a python list
 # ... or a names of a word list from `gram_table`
-def quiz_anag(gramlist, userid, lexicon, listname = True):
+def quiz_anag(gramlist, lexicon, userid, listname = True):
     
     # It could be good to do multiple lists at the same time.
     if listname:
@@ -167,10 +167,11 @@ def quiz_anag(gramlist, userid, lexicon, listname = True):
     
     print('You are quizzing!')   
     
-    # Using the user specified letter order
-    ltrord = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
-    ltrord = ltrord.fetchall()
-    ltrord = ltrord[0][1]
+    # Using the user specified letter order and multiplier
+    userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
+    userdata = userdata.fetchall()
+    ltrord = userdata[0][1]
+    mutiplier = userdata[0][2]
     
     k = 0
     # I would like to do this without a 'for' loop.
@@ -298,9 +299,9 @@ def quiz_anag(gramlist, userid, lexicon, listname = True):
             # This next line could be changed
             # To allow for a user specific number
             # Controls the weighting of more recent responses
-            new_wt_cor = qa_entries[k][5] + 1.3
-            new_wt_cor *= natt/(natt+.3)
-            new_wt_inc = qa_entries[k][6]*natt/(natt+.3)
+            new_wt_cor = qa_entries[k][5] + multiplier
+            new_wt_cor *= natt/(natt+multiplier-1)
+            new_wt_inc = qa_entries[k][6]*natt/(natt+multiplier-1)
             if new_wt_inc >= new_wt_cor:
                 new_prob = 1+new_wt_inc-new_wt_cor
             else:
@@ -313,9 +314,9 @@ def quiz_anag(gramlist, userid, lexicon, listname = True):
             natt = new_cor + new_inc
             # This next line could be changed
             # To allow for a user specific number
-            new_wt_inc = qa_entries[k][6] + 1.3
-            new_wt_inc *= natt/(natt+.3)
-            new_wt_cor = qa_entries[k][5]*natt/(natt+.3)
+            new_wt_inc = qa_entries[k][6] + multiplier
+            new_wt_inc *= natt/(natt+multiplier-1)
+            new_wt_cor = qa_entries[k][5]*natt/(natt+multiplier-1)
             if new_wt_inc >= new_wt_cor:
                 new_prob = 1+new_wt_inc-new_wt_cor
             else:
@@ -358,12 +359,12 @@ def extract_hook(lname):
         output.append(outlist[k][1])
     return(output)
 
-def quiz_hook(list_len, userid, listname = True):
+def quiz_hook(list_len, lexicon, userid, listname = True):
     hooklist = []
     c = conn.cursor()
     # It could be good to do multiple lists at the same time.
     if str(type(list_len)) == "<class 'int'>":
-        hookcheck = 'SELECT * FROM lexicon_twl WHERE length = ?'
+        hookcheck = 'SELECT * FROM lexicon_' + lexicon + ' WHERE length = ?'
         datalist = c.execute(hookcheck, (list_len,))
         datalist = datalist.fetchall()
         for data in datalist:
@@ -375,11 +376,11 @@ def quiz_hook(list_len, userid, listname = True):
     
     # Adding entries to quiz_hook if necessary.
     for word in hooklist:
-        hookcheck = 'SELECT * FROM quiz_hook WHERE word = ?'
+        hookcheck = 'SELECT * FROM quiz_hook_' + lexicon + 'WHERE word = ?'
         hookcheck = c.execute(hookcheck, (word,))
         hookcheck = hookcheck.fetchall()
         if len(hookcheck) == 0:
-            adddata = 'SELECT * FROM lexicon_twl WHERE word = ?'
+            adddata = 'SELECT * FROM lexicon_' + lexicon + ' WHERE word = ?'
             adddata = c.execute(adddata, (word,))
             adddata = adddata.fetchall()
             hookadd = '''INSERT INTO quiz_hook(user, word, fhook, bhook,
@@ -392,16 +393,18 @@ def quiz_hook(list_len, userid, listname = True):
     
     print('You are quizzing!')   
     
-    # Using the user specified letter order
-    ltrord = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
-    ltrord = ltrord.fetchall()
-    ltrord = ltrord[0][1]
+    # Using the user specified letter order and multiplier
+    userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
+    userdata = userdata.fetchall()
+    ltrord = userdata[0][1]
+    multiplier = userdata[0][2]
     
     k = 0
     # I would like to do this without a 'for' loop.
     qh_entries = []
     for k in range(len(hooklist)):
-        sql_search_qh = 'SELECT * FROM quiz_hook WHERE word = ? AND user = ?'
+        sql_search_qh = 'SELECT * FROM quiz_hook_' + lexicon + \
+                        ' WHERE word = ? AND user = ?'
         curr_entry = c.execute(sql_search_qh, (hooklist[k], userid))
         curr_entry = curr_entry.fetchall()
         qh_entries.append(curr_entry[0])
@@ -452,8 +455,8 @@ def quiz_hook(list_len, userid, listname = True):
         
         answer_data = []
         for word in answers:
-            sql = '''SELECT fhook, remfirst, word, remlast, bhook
-                     FROM lexicon_twl WHERE word = ?'''
+            sql = 'SELECT fhook, remfirst, word, remlast, bhook FROM lexicon_' + \
+                  lexicon + ' WHERE word = ?'
             word_props = c.execute(sql, (word,))
             word_props = word_props.fetchall()
             answer_data.append(word_props)
@@ -469,9 +472,9 @@ def quiz_hook(list_len, userid, listname = True):
                 # This next line could be changed
                 # To allow for a user specific number
                 # Controls the weighting of more recent responses
-                new_wt_cor = qh_entries[k][6] + 1.3
-                new_wt_cor *= natt/(natt+.3)
-                new_wt_inc = qh_entries[k][7]*natt/(natt+.3)
+                new_wt_cor = qh_entries[k][6] + multiplier
+                new_wt_cor *= natt/(natt+multiplier - 1)
+                new_wt_inc = qh_entries[k][7]*natt/(natt+multiplier - 1)
                 if new_wt_inc >= new_wt_cor:
                     new_prob = 1+new_wt_inc-new_wt_cor
                 else:
@@ -485,9 +488,9 @@ def quiz_hook(list_len, userid, listname = True):
                 natt = new_cor + new_inc
                 # This next line could be changed
                 # To allow for a user specific number
-                new_wt_inc = qh_entries[k][7] + 1.3
-                new_wt_inc *= natt/(natt+.3)
-                new_wt_cor = qh_entries[k][6]*natt/(natt+.3)
+                new_wt_inc = qh_entries[k][7] + multiplier
+                new_wt_inc *= natt/(natt+multiplier-1)
+                new_wt_cor = qh_entries[k][6]*natt/(natt+multiplier-1)
                 if new_wt_inc >= new_wt_cor:
                     new_prob = 1+new_wt_inc-new_wt_cor
                 else:
@@ -498,8 +501,8 @@ def quiz_hook(list_len, userid, listname = True):
             print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
                   str(round(new_prob,2)))
             # Updating the database
-            sql = '''UPDATE quiz_hook
-                     SET num_cor = ?,
+            sql = 'UPDATE quiz_hook_' + lexicon +\
+                  '''SET num_cor = ?,
                          num_inc = ?,
                          wt_cor = ?,
                          wt_inc = ?,
