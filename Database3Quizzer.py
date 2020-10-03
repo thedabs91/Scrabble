@@ -171,7 +171,7 @@ def quiz_anag(gramlist, lexicon, userid, listname = True):
     userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
     userdata = userdata.fetchall()
     ltrord = userdata[0][1]
-    mutiplier = userdata[0][2]
+    multiplier = userdata[0][2]
     
     k = 0
     # I would like to do this without a 'for' loop.
