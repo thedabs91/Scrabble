@@ -53,6 +53,6 @@ def create_user(username, ltrorder, multiplier):
     sql = ''' INSERT INTO users(user, letterorder, multiplier)
               VALUES(?,?,?) '''
     cur = conn.cursor()
-    userrow = (username, ltrorder)
+    userrow = (username, ltrorder, multiplier)
     cur.execute(sql, userrow)
     return(cur.lastrowid)
