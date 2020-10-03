@@ -16,7 +16,7 @@ def connector(db_file):
     
     return(None)
 
-def create_table(conn, create_table_sql):
+def create_table(create_table_sql):
     """ creates a table from the 'create_table_sql' statement
     :param conn: a connection object
     :param create_table_sql: a CREATE TABLE statement
@@ -41,12 +41,12 @@ sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
 
 conn = connector(database)
 if conn is not None:
-    create_table(conn, sql_create_users_table)
+    create_table(sql_create_users_table)
 else:
     print('Error! Cannot create database connection.')
 
 
-def create_user(conn, username, ltrorder, multiplier):
+def create_user(username, ltrorder, multiplier):
     """
     Creating a new user
     """
