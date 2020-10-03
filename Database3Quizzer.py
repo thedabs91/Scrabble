@@ -350,9 +350,10 @@ def quiz_anag(gramlist, lexicon, userid, listname = True):
 
 
 # Hook quiz using databases
-def extract_hook(lname):
+def extract_hook(lname, lexicon):
     c = conn.cursor()
-    outlist = c.execute('SELECT * FROM hook_table WHERE listname = ?', (lname,))
+    outlist = c.execute('SELECT * FROM hook_table_' + lexicon + \
+                        ' WHERE listname = ?', (lname,))
     outlist = outlist.fetchall()
     output = []
     for k in range(len(outlist)):
@@ -372,7 +373,7 @@ def quiz_hook(list_len, lexicon, userid, listname = True):
     
     if str(type(list_len)) == "<class 'str'>":   
         if listname:
-            hooklist = extract_hook(list_len)
+            hooklist = extract_hook(list_len, lexicon)
     
     # Adding entries to quiz_hook if necessary.
     for word in hooklist:
