@@ -377,7 +377,7 @@ def quiz_hook(list_len, lexicon, userid, listname = True):
     
     # Adding entries to quiz_hook if necessary.
     for word in hooklist:
-        hookcheck = 'SELECT * FROM quiz_hook_' + lexicon + 'WHERE word = ?'
+        hookcheck = 'SELECT * FROM quiz_hook_' + lexicon + ' WHERE word = ?'
         hookcheck = c.execute(hookcheck, (word,))
         hookcheck = hookcheck.fetchall()
         if len(hookcheck) == 0:
@@ -503,12 +503,12 @@ def quiz_hook(list_len, lexicon, userid, listname = True):
                   str(round(new_prob,2)))
             # Updating the database
             sql = 'UPDATE quiz_hook_' + lexicon +\
-                  '''SET num_cor = ?,
-                         num_inc = ?,
-                         wt_cor = ?,
-                         wt_inc = ?,
-                         prob_val = ?
-                     WHERE word = ?'''
+                  ''' SET num_cor = ?,
+                          num_inc = ?,
+                          wt_cor = ?,
+                          wt_inc = ?,
+                          prob_val = ?
+                      WHERE word = ?'''
             c.execute(sql, (qh_entries[k][4],\
                             qh_entries[k][5],\
                             qh_entries[k][6],\
