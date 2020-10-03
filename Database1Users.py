@@ -35,7 +35,8 @@ database = "Scrabble_Database.db"
 
 sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
                                  user text PRIMARY KEY,
-                                 letterorder text NOT NULL
+                                 letterorder text NOT NULL,
+                                 multiplier integer NOT NULL
                              ); """
 
 conn = connector(database)
@@ -45,12 +46,12 @@ else:
     print('Error! Cannot create database connection.')
 
 
-def create_user(conn, username, ltrorder):
+def create_user(conn, username, ltrorder, multiplier):
     """
     Creating a new user
     """
-    sql = ''' INSERT INTO users(user, letterorder)
-              VALUES(?,?) '''
+    sql = ''' INSERT INTO users(user, letterorder, multiplier)
+              VALUES(?,?,?) '''
     cur = conn.cursor()
     userrow = (username, ltrorder)
     cur.execute(sql, userrow)
