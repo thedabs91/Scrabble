@@ -55,4 +55,6 @@ def create_user(username, ltrorder, multiplier):
     cur = conn.cursor()
     userrow = (username, ltrorder, multiplier)
     cur.execute(sql, userrow)
+    conn.commit()
     return(cur.lastrowid)
+
