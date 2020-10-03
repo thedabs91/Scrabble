@@ -384,7 +384,8 @@ def quiz_hook(list_len, lexicon, userid, listname = True):
             adddata = 'SELECT * FROM lexicon_' + lexicon + ' WHERE word = ?'
             adddata = c.execute(adddata, (word,))
             adddata = adddata.fetchall()
-            hookadd = '''INSERT INTO quiz_hook(user, word, fhook, bhook,
+            hookadd = 'INSERT INTO quiz_hook_' + lexicon +\
+                      '''(user, word, fhook, bhook,
                                                num_cor, num_inc, wt_cor, wt_inc,
                                                prob_val)
                          VALUES(?,?,?,?,?,?,?,?,?)'''
