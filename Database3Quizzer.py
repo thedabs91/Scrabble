@@ -588,7 +588,7 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
         for k in range(len(gramlist)):
             # lexicon 1
             sql_search_lex1 = 'SELECT * FROM lexicon_' + lex1 + ' WHERE gram = ?'
-            curr_entries1 = c.execute(sql_search_lex1, (gramlist1[k],))
+            curr_entries1 = c.execute(sql_search_lex1, (gramlist[k],))
             curr_entries1 = curr_entries1.fetchall()
             new_answer1 = ''
             for ell in range(len(curr_entries1)):
@@ -597,7 +597,7 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
                 new_answer1 += curr_entries1[ell][1]
             # lexicon 2
             sql_search_lex2 = 'SELECT * FROM lexicon_' + lex2 + ' WHERE gram = ?'
-            curr_entries2 = c.execute(sql_search_lex1, (gramlist1[k],))
+            curr_entries2 = c.execute(sql_search_lex2, (gramlist[k],))
             curr_entries2 = curr_entries2.fetchall()
             new_answer2 = ''
             for ell in range(len(curr_entries2)):
