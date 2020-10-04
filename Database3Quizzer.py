@@ -524,3 +524,251 @@ def quiz_hook(list_len, lexicon, userid, listname = True):
     print('Questions Correct:   ' + str(qcor) + '\n')
     print('Questions Attempted: ' + str(qatt) + '\n')
     print('Thanks for quizzing!')
+
+
+
+# Now I am editing these functions to be bilexical!
+def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
+                    lex_subset = False):
+    # This quiz will be bilexical
+    # If lex_subset = True, then it will assume that lex2
+    # ... is a subset of lex1.
+    
+    # It could be good to do multiple lists at the same time.
+    if listname:
+        gramlist1 = extract_list(gramlist, lex1)
+        gramlist2 = extract_list(gramlist, lex2)
+    # Combining into 1.
+    gramlist = list(set(gramlist1) | set(gramlist2))
+    
+    c = conn.cursor()
+    
+    print('You are quizzing!')   
+    
+    # Using the user specified letter order and multiplier
+    userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
+    userdata = userdata.fetchall()
+    ltrord = userdata[0][1]
+    multiplier = userdata[0][2]
+    
+    k = 0
+    # Incorporating elements previously in the quiz_anag table
+    qa_entries = []
+    for k in range(len(gramlist)):
+        sql_search_qa = 'SELECT * FROM quiz_anag_' + lex1+'_'+lex2 +\
+                        ' WHERE gram = ? AND user = ?'
+        curr_entry = c.execute(sql_search_qa, (gramlist[k], userid))
+        curr_entry = curr_entry.fetchall()
+        #print(str(k), curr_entry)
+        if len(curr_entry) > 0:
+            qa_entries.extend(curr_entry)
+                k = 0
+    
+    # Adding the proportional probability terms
+    k = 0
+    prb_list = []
+    for k in range(len(qa_entries)):
+        prb_list.append(qa_entries[k][8])
+        if qa_entries[k][1] in gramlist1:
+            gramlist1.remove(qa_entries[k][1])
+            gramlist.remove(qa_entries[k][1])
+        if qa_entries[k][1] in gramlist2:
+            gramlist2.remove(qa_entries[k][1])
+            gramlist.remove(qa_entries[k][1])
+    
+    # Now I will search the dictionary for any new information
+    if len(gramlist) > 0:
+        print(len(gramlist))
+        lex_answers = []
+        for k in range(len(gramlist)):
+            # lexicon 1
+            sql_search_lex1 = 'SELECT * FROM lexicon_' + lex1 + ' WHERE gram = ?'
+            curr_entries1 = c.execute(sql_search_lex1, (gramlist1[k],))
+            curr_entries1 = curr_entries1.fetchall()
+            new_answer1 = ''
+            for ell in range(len(curr_entries1)):
+                if ell > 0:
+                    new_answer1 += '_'
+                new_answer1 += curr_entries[ell][1]
+            # lexicon 2
+            sql_search_lex2 = 'SELECT * FROM lexicon_' + lex2 + ' WHERE gram = ?'
+            curr_entries2 = c.execute(sql_search_lex1, (gramlist1[k],))
+            curr_entries2 = curr_entries2.fetchall()
+            new_answer2 = ''
+            for ell in range(len(curr_entries2)):
+                if ell > 0:
+                    new_answer2 += '_'
+                new_answer2 += curr_entries[ell][1]
+            # Appending results
+            lex_answers.append([gramlist1[k], new_answer1, new_answer2])
+        
+        
+        
+        for k in range(len(lex_answers)):
+            sql = 'INSERT INTO quiz_anag_' + lex1+'_'+lex2 +\
+                  '''(user,gram,answers1,answers2,num_cor,num_inc,wt_cor,wt_inc,prob_val)
+                     VALUES(?,?,?,?,?,?,?,?,?)'''
+            c.execute(sql, (userid, lex_answers[k][0], lex_answers[k][1],\
+                               lex_answers[k][2], 0,0,0,0,5))
+            qa_entries.append((userid, lex_answers[k][0], lex_answers[k][1],\
+                               lex_answers[k][2], 0,0,0,0,5))
+            prb_list.append(5)
+        
+            try:
+                    gramlist.remove(lex_answers[k][0])
+            except ValueError:
+                print(gramprev)
+            try:
+                gramlist1.remove(lex_answers[k][0])
+            except ValueError:
+                pass
+            try:
+                gramlist2.remove(lex_answers[k][0])
+            except ValueError:
+                pass
+    conn.commit()
+    
+    # If anything is left, it has no anagrams
+    if len(gramlist) > 0:
+        for gram in gramlist:
+            sql = 'INSERT INTO quiz_anag_' + lex1+'_'+lex2 +\
+                  '''(user,gram,answers1,answers2,num_cor,num_inc,wt_cor,wt_inc,prob_val)
+                     VALUES(?,?,?,?,?,?,?,?,?)'''
+            c.execute(sql, (userid, gram, '', '', 0,0,0,0,5))
+            qa_entries.append((userid, gram, '', '', 0,0,0,0,5))
+            prb_list.append(5)
+    conn.commit()
+    
+    # Now we will begin the quizzing
+    quiz = True
+    qatt = 0
+    qcor = 0
+    while quiz:
+        # numpy was hard to install on linux, so I didn't use it
+        prb_cumsum = my_cumsum(prb_list)
+        pick = r.random()*prb_cumsum[-1]
+        k = 0
+        while pick > prb_cumsum[k]:
+            k += 1
+        question = resort(qa_entries[k][1], ltrord)
+        answers1 = qa_entries[k][2].split('_')
+        answers1.sort()
+        answers2 = qa_entries[k][3].split('_')
+        answers2.sort()
+        ans_1 = list(set(answers1) - set(answers2))
+        ans_2 = list(set(answers2) - set(answers1))
+        ans_3 = list(set(answers1) & set(answers2))
+        if ans_1 == ['']:
+            ans_1 = []
+        if ans_2 == ['']:
+            ans_2 = []
+        if ans_3 == ['']:
+            ans_3 = []
+        endq = False
+        print(question)
+        print(lex1 + ' only')
+        replylist1 = []
+        while not endq:
+            reply = input('? ')
+            reply = reply.upper()
+            if reply == '' or reply == 'Q':
+                endq = True
+                if reply == 'Q':
+                    quiz = False
+            else:
+                replylist1.append(reply)
+        replylist1.sort()
+        
+        replylist2 = []
+        if not lex_subset:
+            print(lex2 + ' only')
+            while not endq:
+                reply = input('? ')
+                reply = reply.upper()
+                if reply == '' or reply == 'Q':
+                    endq = True
+                    if reply == 'Q':
+                        quiz = False
+                else:
+                    replylist2.append(reply)
+            replylist2.sort()
+        else:
+            ans_2 = []
+        print('both ' + lex1 + ' and ' + lex2)
+        replylist3 = []
+        while not endq:
+            reply = input('? ')
+            reply = reply.upper()
+            if reply == '' or reply == 'Q':
+                endq = True
+                if reply == 'Q':
+                    quiz = False
+            else:
+                replylist3.append(reply)
+        replylist3.sort()
+        # In this case, I do not show the users answers again.
+        print(ans_1)
+        if not lex_subset:
+            print(ans_2)
+        print(ans_3)
+        answer_data = []
+        # I do not show data about the answers here
+        # ... for now.
+        qatt += 1
+        if replylist1 == ans_1 and replylist3 == ans_3 and \
+           replylist2 == ans_2:
+            qcor += 1
+            new_cor = qa_entries[k][4] + 1
+            new_inc = qa_entries[k][5]
+            natt = new_cor + new_inc
+            # This next line could be changed
+            # To allow for a user specific number
+            # Controls the weighting of more recent responses
+            new_wt_cor = qa_entries[k][6] + multiplier
+            new_wt_cor *= natt/(natt+multiplier-1)
+            new_wt_inc = qa_entries[k][7]*natt/(natt+multiplier-1)
+            if new_wt_inc >= new_wt_cor:
+                new_prob = 1+new_wt_inc-new_wt_cor
+            else:
+                new_prob = 1/(1+new_wt_cor-new_wt_inc)
+            qa_entries[k] = (qa_entries[k][0], qa_entries[k][1], qa_entries[k][2],\
+                             new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob) 
+        else:
+            new_cor = qa_entries[k][4]
+            new_inc = qa_entries[k][5] + 1
+            natt = new_cor + new_inc
+            # This next line could be changed
+            # To allow for a user specific number
+            new_wt_inc = qa_entries[k][7] + multiplier
+            new_wt_inc *= natt/(natt+multiplier-1)
+            new_wt_cor = qa_entries[k][6]*natt/(natt+multiplier-1)
+            if new_wt_inc >= new_wt_cor:
+                new_prob = 1+new_wt_inc-new_wt_cor
+            else:
+                new_prob = 1/(1+new_wt_cor-new_wt_inc)
+            qa_entries[k] = (qa_entries[k][0], qa_entries[k][1], qa_entries[k][2],\
+                             new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob)
+        print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
+              str(round(new_prob,2)))
+        # Updating the database
+        sql = 'UPDATE quiz_anag_' + lexicon +\
+              ''' SET num_cor = ?,
+                      num_inc = ?,
+                      wt_cor = ?,
+                      wt_inc = ?,
+                      prob_val = ?
+                  WHERE gram = ?'''
+        c.execute(sql, (qa_entries[k][4],\
+                        qa_entries[k][5],\
+                        qa_entries[k][6],\
+                        qa_entries[k][7],\
+                        qa_entries[k][8],\
+                        qa_entries[k][1]))
+        conn.commit()
+        # Updating probabilities
+        prb_list[k] = qa_entries[k][8]
+    
+    # Displaying statistics
+    print('Questions Correct:   ' + str(qcor) + '\n')
+    print('Questions Attempted: ' + str(qatt) + '\n')
+    print('Thanks for quizzing!')
