@@ -568,16 +568,14 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
     prb_list = []
     for k in range(len(qa_entries)):
         prb_list.append(qa_entries[k][8])
-        if qa_entries[k][1] in gramlist1:
-            gramlist1.remove(qa_entries[k][1])
+        if qa_entries[k][1] in gramlist:
+            gramlist.remove(qa_entries[k][1])
             try:
-                gramlist.remove(qa_entries[k][1])
+                gramlist1.remove(qa_entries[k][1])
             except ValueError:
                 pass
-        if qa_entries[k][1] in gramlist2:
-            gramlist2.remove(qa_entries[k][1])
             try:
-                gramlist.remove(qa_entries[k][1])
+                gramlist2.remove(qa_entries[k][1])
             except ValueError:
                 pass
     
@@ -587,26 +585,25 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
         lex_answers = []
         for k in range(len(gramlist)):
             # lexicon 1
-            sql_search_lex1 = 'SELECT * FROM lexicon_' + lex1 + ' WHERE gram = ?'
-            curr_entries1 = c.execute(sql_search_lex1, (gramlist[k],))
-            curr_entries1 = curr_entries1.fetchall()
+            sql_search_lex = 'SELECT * FROM lexicon_' + lex1 + ' WHERE gram = ?'
+            curr_entries = c.execute(sql_search_lex, (gramlist[k],))
+            curr_entries = curr_entries.fetchall()
             new_answer1 = ''
-            for ell in range(len(curr_entries1)):
+            for ell in range(len(curr_entries)):
                 if ell > 0:
                     new_answer1 += '_'
-                new_answer1 += curr_entries1[ell][1]
+                new_answer1 += curr_entries[ell][1]
             # lexicon 2
-            sql_search_lex2 = 'SELECT * FROM lexicon_' + lex2 + ' WHERE gram = ?'
-            curr_entries2 = c.execute(sql_search_lex2, (gramlist[k],))
-            curr_entries2 = curr_entries2.fetchall()
+            sql_search_lex = 'SELECT * FROM lexicon_' + lex2 + ' WHERE gram = ?'
+            curr_entries = c.execute(sql_search_lex, (gramlist[k],))
+            curr_entries = curr_entries.fetchall()
             new_answer2 = ''
-            for ell in range(len(curr_entries2)):
+            for ell in range(len(curr_entries)):
                 if ell > 0:
                     new_answer2 += '_'
-                new_answer2 += curr_entries2[ell][1]
+                new_answer2 += curr_entries[ell][1]
             # Appending results
-            lex_answers.append([gramlist1[k], new_answer1, new_answer2])
-        
+            lex_answers.append([gramlist[k], new_answer1, new_answer2])
         
         
         for k in range(len(lex_answers)):
@@ -657,18 +654,20 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
             k += 1
         question = resort(qa_entries[k][1], ltrord)
         answers1 = qa_entries[k][2].split('_')
-        answers1.sort()
         answers2 = qa_entries[k][3].split('_')
-        answers2.sort()
         ans_1 = list(set(answers1) - set(answers2))
         ans_2 = list(set(answers2) - set(answers1))
         ans_3 = list(set(answers1) & set(answers2))
+        # Sorting answers
         if ans_1 == ['']:
             ans_1 = []
         if ans_2 == ['']:
             ans_2 = []
         if ans_3 == ['']:
             ans_3 = []
+        ans_1.sort()
+        ans_3.sort()
+        # ans_2 will be sorted later
         endq = False
         print(question)
         print(lex1 + ' only')
@@ -687,6 +686,7 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
         endq = False
         replylist2 = []
         if not lex_subset:
+            ans_2.sort()
             print(lex2 + ' only')
             while not endq:
                 reply = input('? ')
