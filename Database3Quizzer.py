@@ -562,7 +562,6 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
         #print(str(k), curr_entry)
         if len(curr_entry) > 0:
             qa_entries.extend(curr_entry)
-                k = 0
     
     # Adding the proportional probability terms
     k = 0
