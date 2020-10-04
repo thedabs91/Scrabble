@@ -570,10 +570,16 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
         prb_list.append(qa_entries[k][8])
         if qa_entries[k][1] in gramlist1:
             gramlist1.remove(qa_entries[k][1])
-            gramlist.remove(qa_entries[k][1])
+            try:
+                gramlist.remove(qa_entries[k][1])
+            except ValueError:
+                pass
         if qa_entries[k][1] in gramlist2:
             gramlist2.remove(qa_entries[k][1])
-            gramlist.remove(qa_entries[k][1])
+            try:
+                gramlist.remove(qa_entries[k][1])
+            except ValueError:
+                pass
     
     # Now I will search the dictionary for any new information
     if len(gramlist) > 0:
@@ -616,7 +622,7 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
             try:
                     gramlist.remove(lex_answers[k][0])
             except ValueError:
-                print(gramprev)
+                print(lex_answers[k][0])
             try:
                 gramlist1.remove(lex_answers[k][0])
             except ValueError:
@@ -730,7 +736,8 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
                 new_prob = 1+new_wt_inc-new_wt_cor
             else:
                 new_prob = 1/(1+new_wt_cor-new_wt_inc)
-            qa_entries[k] = (qa_entries[k][0], qa_entries[k][1], qa_entries[k][2],\
+            qa_entries[k] = (qa_entries[k][0], qa_entries[k][1],\
+                             qa_entries[k][2], qa_entries[k][3],\
                              new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob) 
         else:
             new_cor = qa_entries[k][4]
@@ -745,12 +752,13 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
                 new_prob = 1+new_wt_inc-new_wt_cor
             else:
                 new_prob = 1/(1+new_wt_cor-new_wt_inc)
-            qa_entries[k] = (qa_entries[k][0], qa_entries[k][1], qa_entries[k][2],\
+            qa_entries[k] = (qa_entries[k][0], qa_entries[k][1],\
+                             qa_entries[k][2], qa_entries[k][3],\
                              new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob)
         print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
               str(round(new_prob,2)))
         # Updating the database
-        sql = 'UPDATE quiz_anag_' + lexicon +\
+        sql = 'UPDATE quiz_anag_' + lex1+'_'+lex2 +\
               ''' SET num_cor = ?,
                       num_inc = ?,
                       wt_cor = ?,
