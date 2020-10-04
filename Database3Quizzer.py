@@ -684,6 +684,7 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
                 replylist1.append(reply)
         replylist1.sort()
         
+        endq = False
         replylist2 = []
         if not lex_subset:
             print(lex2 + ' only')
@@ -700,6 +701,8 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
         else:
             ans_2 = []
         print('both ' + lex1 + ' and ' + lex2)
+        
+        endq = False
         replylist3 = []
         while not endq:
             reply = input('? ')
