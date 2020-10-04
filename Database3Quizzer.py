@@ -588,7 +588,7 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
             for ell in range(len(curr_entries1)):
                 if ell > 0:
                     new_answer1 += '_'
-                new_answer1 += curr_entries[ell][1]
+                new_answer1 += curr_entries1[ell][1]
             # lexicon 2
             sql_search_lex2 = 'SELECT * FROM lexicon_' + lex2 + ' WHERE gram = ?'
             curr_entries2 = c.execute(sql_search_lex1, (gramlist1[k],))
@@ -597,7 +597,7 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
             for ell in range(len(curr_entries2)):
                 if ell > 0:
                     new_answer2 += '_'
-                new_answer2 += curr_entries[ell][1]
+                new_answer2 += curr_entries2[ell][1]
             # Appending results
             lex_answers.append([gramlist1[k], new_answer1, new_answer2])
         
