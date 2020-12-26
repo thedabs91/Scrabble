@@ -132,17 +132,36 @@ def quiz_hook_bilex_db(lex1, lex2):
     create_table(conn, sql_create)
     conn.commit()
 
+# A function to check letter order
+def ltrord_check(ltrord):
+    ltrord = ltrord.upper()
+    ltrord_length = True
+    ltrord_inclall = True
+    if len(ltrord) != 26:
+        ltrord_length = False
+        continue
+    for ltr in string.ascii_uppercase:
+        if ltr not in ltrord:
+            ltrord_inclall = False
+            break
+    ltrord_legal = ltrord_length and ltrord_inclall
+    return(ltrord_legal)
 
 # To create users, if desired
-def create_user(conn, username, ltrorder):
+def create_user(username, ltrorder, multiplier,
+               lexicon = None, lex1 = None, lex2 = None):
     """
     Creating a new user
     """
-    sql = ''' INSERT INTO users(user, letterorder)
-              VALUES(?,?) '''
+    sql = ''' INSERT INTO users(user, letterorder, multiplier,
+                                lexicon, lex1, lex2)
+              VALUES(?,?,?,?,?,?) '''
     cur = conn.cursor()
     ltrorder = letrorder.upper()
-    userrow = (username, ltrorder)
+    if !ltrord_check(ltrorder):
+        raise ValueError('Not a legal letter order!')
+    userrow = (username, ltrorder, multiplier,\
+               lexicon, lex1, lex2)
     cur.execute(sql, userrow)
     return(cur.lastrowid)
 
@@ -157,73 +176,65 @@ def extract_list(lname, lexicon):
 
 
 ### Creating an opportunity to login:
-login_code = False
+def login_fxn():
+    login_code = False
+    while(login_code == False):
+        login = input('Would you like to login (y/n)?: ')
+        if login.lower() == 'y':
+            uname_global = input('Username: ')
+            login_code = True
+            usrupd_code = input('Would you like to update defaults (y/n)?: ')
+            if usrupd_code.lower() == 'y':
+                lex_code = input('Update lexica (y/n)?: ')
+                if lex_code.lower() == 'y':
+                    lexicon_new = input('Preferred lexicon for unilexical quizzes: ')
+                    lexicon_new = lexicon_new.strip(' ')
+                    bilex_new = input('Bilex lexicon order: ')
+                    bilex_new = bilex_new.split(',')
+                    lex1_new = bilex_new[0].strip()
+                    lex2_new = bilex_new[1].strip()
+                    sql = 'UPDATE users SET lexicon = ?, lex1 = ?, lex2 = ? WHERE user = ?'
+                    c.execute(sql, (lexicon_new, lex1_new, lex2_new, uname_global))
+                    conn.commit()
+                ltrord_code = input('Update letter order (y/n)?: ')
+                if ltrord_code.lower() == 'y':
+                    ltrord_legal = False
+                    while not ltrord_legal:
+                        ltrord_new = input('New letter order (type "n" to cancel): ')
+                        ltrord_new = ltrord.upper()
+                        if ltrord_new == 'n':
+                            sql = 'SELECT letterorder FROM users WHERE user == ?'
+                            ltrord_new = c.execute(sql, (uname_global,))
+                        ltrord_legal = ltrord_check(ltrord_new)
+                        if not ltrord_legal:
+                            print('Illegal letter order. Try again.')
+                    sql = 'UPDATE users SET letterorder = ? WHERE user = ?'
+                    c.execute(sql, (ltrord_new, uname_global))
+                    conn.commit()
+                mult_code = input('Update multiplier (y/n)?: ')
+                if mult_code.lower() == 'y':
+                    mult_new = input('New multiplier: ')
+                    while (mult_new < 1) or (mult_new > 2):
+                        print('You chose a weird multiplier value.')
+                        mult_check = input('Are you sure about that number (y/n)?: ')
+                        if mult_check.lower() == 'y':
+                            pass
+                        elif mult_check.lower() == 'n':
+                            mult_new = input('New multiplier: ')
+                        else:
+                            print('Not "y" or "n". Try again.')
+                    sql = 'UPDATE users SET multiplier = ? WHERE user = ?'
+                    c.execute(sql, (mult_new, uname_global))
+                    conn.commit()
+        
+        elif login.lower() == 'n':
+            print('You did not log in. Noted.')
+            login_code = True
+        else:
+            print('Not "y" or "n". Try again.')
+
 uname_global = None
-while(login_code == False):
-    login = input('Would you like to login (y/n)?: ')
-    if login.lower() == 'y':
-        uname_global = input('Username: ')
-        login_code = True
-        usrupd_code = input('Would you like to update defaults (y/n)?: ')
-        if usrupd_code.lower() == 'y':
-            lex_code = input('Update lexica (y/n)?: ')
-            if lex_code.lower() == 'y':
-                lexicon_new = input('Preferred lexicon for unilexical quizzes: ')
-                lexicon_new = lexicon_new.strip(' ')
-                bilex_new = input('Bilex lexicon order: ')
-                bilex_new = bilex_new.split(',')
-                lex1_new = bilex_new[0].strip()
-                lex2_new = bilex_new[1].strip()
-                sql = 'UPDATE users SET lexicon = ?, lex1 = ?, lex2 = ? WHERE user = ?'
-                c.execute(sql, (lexicon_new, lex1_new, lex2_new, uname_global))
-                conn.commit()
-            ltrord_code = input('Update letter order (y/n)?: ')
-            if ltrord_code.lower() == 'y':
-                ltrord_legal = False
-                while not ltrord_legal:
-                    ltrord_length = True
-                    ltrord_inclall = True
-                    ltrord_new = input('New letter order (type "n" to cancel): ')
-                    ltrord_new = ltrord.upper()
-                    if ltrord_new == 'n':
-                        sql = 'SELECT letterorder FROM users WHERE user == ?'
-                        ltrord_new = c.execute(sql, (uname_global,))
-                    if len(ltrord_new) != 26:
-                        ltrord_length = False
-                        continue
-                    for ltr in string.ascii_uppercase:
-                        if ltr not in ltrord_new:
-                            ltrord_inclall = False
-                            break
-                    ltrord_legal = ltrord_length and ltrord_inclall
-                    if not ltrord_legal:
-                        print('Illegal letter order. Try again.')
-                sql = 'UPDATE users SET letterorder = ? WHERE user = ?'
-                c.execute(sql, (ltrord_new, uname_global))
-                conn.commit()
-            mult_code = input('Update multiplier (y/n)?: ')
-            if mult_code.lower() == 'y':
-                mult_new = input('New multiplier: ')
-                while (mult_new < 1) or (mult_new > 2):
-                    print('You chose a weird multiplier value.')
-                    mult_check = input('Are you sure about that number (y/n)?: ')
-                    if mult_check.lower() == 'y':
-                        pass
-                    elif mult_check.lower() == 'n':
-                        mult_new = input('New multiplier: ')
-                    else:
-                        print('Not "y" or "n". Try again.')
-                sql = 'UPDATE users SET multiplier = ? WHERE user = ?'
-                c.execute(sql, (mult_new, uname_global))
-                conn.commit()
-            
-    elif login.lower() == 'n':
-        print('You did not log in. Noted.')
-        login_code = True
-    else:
-        print('Not "y" or "n". Try again.')
-
-
+login_fxn()
 
 # Creating a function for anagram quizzes
 # You can either use a list, saved as a python list
