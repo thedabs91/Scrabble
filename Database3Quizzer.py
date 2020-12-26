@@ -230,6 +230,12 @@ while(login_code == False):
 # ... or a names of a word list from `gram_table`
 def quiz_anag(gramlist, userid = uname_global, lexicon = None, listname = True):
     
+    if lexicon == None:
+        sql = 'SELECT lexicon FROM users WHERE user = ?'
+        usr_lex = c.execute(sql, (userid,))
+        usr_lex = usr_lex.fetchall()
+        lexicon = usr_lex
+    
     # It could be good to do multiple lists at the same time.
     if listname:
         gramlist = extract_list(gramlist, lexicon)
