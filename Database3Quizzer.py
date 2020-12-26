@@ -230,16 +230,20 @@ while(login_code == False):
 # ... or a names of a word list from `gram_table`
 def quiz_anag(gramlist, userid = uname_global, lexicon = None, listname = True):
     
+    # Starting the cursor
+    c = conn.cursor()
+    
+    # Using default lexicon if unspecified
     if lexicon == None:
         sql = 'SELECT lexicon FROM users WHERE user = ?'
         usr_lex = c.execute(sql, (userid,))
         usr_lex = usr_lex.fetchall()
-        lexicon = usr_lex
+        lexicon = usr_lex[0][0]
+        print(lexicon)
     
     # It could be good to do multiple lists at the same time.
     if listname:
         gramlist = extract_list(gramlist, lexicon)
-    c = conn.cursor()
     
     print('You are quizzing!')   
     
@@ -436,9 +440,18 @@ def extract_hook(lname, lexicon):
         output.append(outlist[k][1])
     return(output)
 
-def quiz_hook(list_len, lexicon, userid, listname = True):
+def quiz_hook(list_len, userid = uname_global, lexicon = None, listname = True):
     hooklist = []
     c = conn.cursor()
+    
+    # Using default lexicon if unspecified
+    if lexicon == None:
+        sql = 'SELECT lexicon FROM users WHERE user = ?'
+        usr_lex = c.execute(sql, (userid,))
+        usr_lex = usr_lex.fetchall()
+        lexicon = usr_lex[0][0]
+        print(lexicon)
+    
     # It could be good to do multiple lists at the same time.
     if str(type(list_len)) == "<class 'int'>":
         hookcheck = 'SELECT * FROM lexicon_' + lexicon + ' WHERE length = ?'
@@ -604,11 +617,26 @@ def quiz_hook(list_len, lexicon, userid, listname = True):
 
 
 # Now I am editing these functions to be bilexical!
-def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
-                    lex_subset = False):
+def quiz_anag_bilex(gramlist, userid = uname_global, lex1 = None, lex2 = None,
+                    listname = True, lex_subset = False):
     # This quiz will be bilexical
     # If lex_subset = True, then it will assume that lex2
     # ... is a subset of lex1.
+    c = conn.cursor()
+    
+    # Using default lexica if unspecified
+    if lex1 == None:
+        sql = 'SELECT lex1 FROM users WHERE user = ?'
+        usr_lex = c.execute(sql, (userid,))
+        usr_lex = usr_lex.fetchall()
+        lexicon = usr_lex[0][0]
+        print('lex1 = ' + lex1)
+    if lex2 == None:
+        sql = 'SELECT lex2 FROM users WHERE user = ?'
+        usr_lex = c.execute(sql, (userid,))
+        usr_lex = usr_lex.fetchall()
+        lex2 = usr_lex[0][0]
+        print('lex2 = ' + lex2)
     
     # It could be good to do multiple lists at the same time.
     if listname:
@@ -616,8 +644,6 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
         gramlist2 = extract_list(gramlist, lex2)
     # Combining into 1.
     gramlist = list(set(gramlist1) | set(gramlist2))
-    
-    c = conn.cursor()
     
     print('You are quizzing!')   
     
@@ -860,10 +886,25 @@ def quiz_anag_bilex(gramlist, lex1, lex2, userid, listname = True,
     print('Thanks for quizzing!')
 
 
-def quiz_hook_bilex(list_len, lex1, lex2, userid, listname = True,
-                    lex_subset = True):
+def quiz_hook_bilex(list_len, userid = uname_global, lex1 = None, lex2 = None,\
+                    listname = True, lex_subset = True):
     hooklist = []
     c = conn.cursor()
+    
+    # Using default lexica if unspecified
+    if lex1 == None:
+        sql = 'SELECT lex1 FROM users WHERE user = ?'
+        usr_lex = c.execute(sql, (userid,))
+        usr_lex = usr_lex.fetchall()
+        lexicon = usr_lex[0][0]
+        print('lex1 = ' + lex1)
+    if lex2 == None:
+        sql = 'SELECT lex2 FROM users WHERE user = ?'
+        usr_lex = c.execute(sql, (userid,))
+        usr_lex = usr_lex.fetchall()
+        lex2 = usr_lex[0][0]
+        print('lex2 = ' + lex2)
+    
     # It could be good to do multiple lists at the same time.
     if str(type(list_len)) == "<class 'int'>":
         hookcheck = 'SELECT * FROM lexicon_' + lex1 + ' WHERE length = ?'
