@@ -641,7 +641,7 @@ def quiz_anag_bilex(gramlist, userid = uname_global, lex1 = None, lex2 = None,
         sql = 'SELECT lex1 FROM users WHERE user = ?'
         usr_lex = c.execute(sql, (userid,))
         usr_lex = usr_lex.fetchall()
-        lexicon = usr_lex[0][0]
+        lex1 = usr_lex[0][0]
         print('lex1 = ' + lex1)
     if lex2 == None:
         sql = 'SELECT lex2 FROM users WHERE user = ?'
@@ -908,7 +908,7 @@ def quiz_hook_bilex(list_len, userid = uname_global, lex1 = None, lex2 = None,\
         sql = 'SELECT lex1 FROM users WHERE user = ?'
         usr_lex = c.execute(sql, (userid,))
         usr_lex = usr_lex.fetchall()
-        lexicon = usr_lex[0][0]
+        lex1 = usr_lex[0][0]
         print('lex1 = ' + lex1)
     if lex2 == None:
         sql = 'SELECT lex2 FROM users WHERE user = ?'
