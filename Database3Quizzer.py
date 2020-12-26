@@ -630,7 +630,7 @@ def quiz_hook(list_len, userid = uname_global, lexicon = None, listname = True):
 
 # Now I am editing these functions to be bilexical!
 def quiz_anag_bilex(gramlist, userid = uname_global, lex1 = None, lex2 = None,
-                    listname = True, lex_subset = False):
+                    listname = True, lex_subset = True):
     # This quiz will be bilexical
     # If lex_subset = True, then it will assume that lex2
     # ... is a subset of lex1.
@@ -814,8 +814,8 @@ def quiz_anag_bilex(gramlist, userid = uname_global, lex1 = None, lex2 = None,
             replylist2.sort()
         else:
             ans_2 = []
-        print('both ' + lex1 + ' and ' + lex2)
         
+        print('both ' + lex1 + ' and ' + lex2)
         endq = False
         replylist3 = []
         while not endq:
@@ -932,7 +932,7 @@ def quiz_hook_bilex(list_len, userid = uname_global, lex1 = None, lex2 = None,\
     
     if str(type(list_len)) == "<class 'str'>":   
         if listname:
-            hooklist = extract_hook(list_len, lexicon)
+            hooklist = extract_hook(list_len, lex1)
     
     # Adding entries to quiz_hook if necessary.
     for word in hooklist:
