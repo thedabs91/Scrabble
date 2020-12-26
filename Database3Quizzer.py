@@ -51,11 +51,11 @@ def resort(word, ltrord):
         output = output + ltrord[elt]
     return(output)
 
-# Rewriting to be a function
+# Connecting to a database
 database = "Scrabble_Database.db"
 conn = sqlite3.connect(database)
 
-# Table for anagram quizzes
+# Functions to create a table for anagram quizzes.
 def quiz_anag_db_drop(lexicon):
     drop_table(conn, 'DROP TABLE IF EXISTS quiz_anag_' + lexicon)
     
@@ -184,6 +184,7 @@ def login_fxn():
             uname_global = input('Username: ')
             login_code = True
             usrupd_code = input('Would you like to update defaults (y/n)?: ')
+            # If you would want to update information on the defaults.
             if usrupd_code.lower() == 'y':
                 lex_code = input('Update lexica (y/n)?: ')
                 if lex_code.lower() == 'y':
