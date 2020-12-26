@@ -139,7 +139,6 @@ def ltrord_check(ltrord):
     ltrord_inclall = True
     if len(ltrord) != 26:
         ltrord_length = False
-        continue
     for ltr in string.ascii_uppercase:
         if ltr not in ltrord:
             ltrord_inclall = False
@@ -177,6 +176,7 @@ def extract_list(lname, lexicon):
 
 ### Creating an opportunity to login:
 def login_fxn():
+    uname_global = None
     login_code = False
     while(login_code == False):
         login = input('Would you like to login (y/n)?: ')
@@ -233,9 +233,9 @@ def login_fxn():
             login_code = True
         else:
             print('Not "y" or "n". Try again.')
+    return(uname_global)
 
-uname_global = None
-login_fxn()
+uname_global = login_fxn()
 
 # Creating a function for anagram quizzes
 # You can either use a list, saved as a python list
