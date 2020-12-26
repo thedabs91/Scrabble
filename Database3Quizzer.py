@@ -158,7 +158,7 @@ def create_user(username, ltrorder, multiplier,
               VALUES(?,?,?,?,?,?) '''
     cur = conn.cursor()
     ltrorder = letrorder.upper()
-    if !ltrord_check(ltrorder):
+    if not ltrord_check(ltrorder):
         raise ValueError('Not a legal letter order!')
     userrow = (username, ltrorder, multiplier,\
                lexicon, lex1, lex2)
