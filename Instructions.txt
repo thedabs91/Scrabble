@@ -1,7 +1,7 @@
 Steps:
  1) Save the ".py" files a folder somewhere on your computer to, and save any
       word lists to create dictionaries in "Words".
- 2) Open python in 
+ 2) Open python in the folder selected in step 1 (original folder, not "Words").
  3) Put those filenames in the appropriate place in "WordListUpdater.py" to
       create the word list that you need.
     
@@ -29,11 +29,15 @@ Steps:
       using the following code:
     
     >>> import Database1Users as d1
-    >>> d1.create_user('username', ['ltrorder'])
+    >>> d1.create_user('username', ['ltrorder', 'lexicon', 'lex1', 'lex2'])
     
     Here, `username` should be replaced with the username that you wish to use.
     The optional second argument is the order you want letters to show in
       quizzes. The default is alphabetical.
+    The optional third through fifth arguments are lexica to use for quizzes.
+    Here, `lexicon` is the default lexicon for unilexical quizzes, and `lex1`
+      and `lex2` are the lexica to be used for bilexical quizzes. If one lexicon
+      is a subset of the other, the larger lexicon should be treated as `lex1`.
     
 10) Now that you have created a username, you can use quizzes.
 11) I will now discuss "Database2Lister.py". This file could actually have been
