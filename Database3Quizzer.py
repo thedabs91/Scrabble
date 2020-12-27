@@ -176,6 +176,7 @@ def extract_list(lname, lexicon):
 
 ### Creating an opportunity to login:
 def login_fxn():
+    c = conn.cursor()
     uname_global = None
     login_code = False
     while(login_code == False):
@@ -202,7 +203,7 @@ def login_fxn():
                     ltrord_legal = False
                     while not ltrord_legal:
                         ltrord_new = input('New letter order (type "n" to cancel): ')
-                        ltrord_new = ltrord.upper()
+                        ltrord_new = ltrord_new.upper()
                         if ltrord_new == 'n':
                             sql = 'SELECT letterorder FROM users WHERE user == ?'
                             ltrord_new = c.execute(sql, (uname_global,))
