@@ -631,10 +631,11 @@ def quiz_hook(list_len, userid = uname_global, lexicon = None, listname = True):
 
 # Now I am editing these functions to be bilexical!
 def quiz_anag_bilex(gramlist, userid = uname_global, lex1 = None, lex2 = None,
-                    listname = True, lex_subset = True):
+                    listname = True):
     # This quiz will be bilexical
-    # If lex_subset = True, then it will assume that lex2
-    # ... is a subset of lex1.
+    # This makes no assumptions of a lexicon being a subset
+    # ... of another lexicon
+    
     c = conn.cursor()
     
     # Using default lexica if unspecified
@@ -785,39 +786,9 @@ def quiz_anag_bilex(gramlist, userid = uname_global, lex1 = None, lex2 = None,
         # ans_2 will be sorted later
         endq = False
         print(question)
-        print(lex1 + ' only')
+        replylist = []
         replylist1 = []
-        while not endq:
-            reply = input('? ')
-            reply = reply.upper()
-            if reply == '' or reply == 'Q':
-                endq = True
-                if reply == 'Q':
-                    quiz = False
-            else:
-                replylist1.append(reply)
-        replylist1.sort()
-        
-        endq = False
         replylist2 = []
-        if not lex_subset:
-            ans_2.sort()
-            print(lex2 + ' only')
-            while not endq:
-                reply = input('? ')
-                reply = reply.upper()
-                if reply == '' or reply == 'Q':
-                    endq = True
-                    if reply == 'Q':
-                        quiz = False
-                else:
-                    replylist2.append(reply)
-            replylist2.sort()
-        else:
-            ans_2 = []
-        
-        print('both ' + lex1 + ' and ' + lex2)
-        endq = False
         replylist3 = []
         while not endq:
             reply = input('? ')
@@ -827,12 +798,22 @@ def quiz_anag_bilex(gramlist, userid = uname_global, lex1 = None, lex2 = None,
                 if reply == 'Q':
                     quiz = False
             else:
-                replylist3.append(reply)
-        replylist3.sort()
+                replylist.append(reply)
+        replylist.sort()
+        
+        for word in replylist:
+            if word[-1].isdigit():
+                if word[-1] == '1':
+                    replylist1.append(word.rstrip('0123456789'))
+                if word[-1] == '2':
+                    replylist2.append(word.rstrip('0123456789'))
+            else:
+                replylist3.append(word)
+        
+        
         # In this case, I do not show the users answers again.
         print(ans_1)
-        if not lex_subset:
-            print(ans_2)
+        print(ans_2)
         print(ans_3)
         answer_data = []
         # I do not show data about the answers here
