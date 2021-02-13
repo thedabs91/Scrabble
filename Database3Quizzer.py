@@ -1079,6 +1079,11 @@ def login_fxn():
         if login.lower() == 'y':
             uname_global = input('Username: ')
             login_code = True
+            # Editing function defaults?
+            global quiz_hook
+            global quiz_anag
+            global quiz_hook_bilex
+            global quiz_anag_bilex
             quiz_hook = partial(quiz_hook, userid = uname_global)
             quiz_anag = partial(quiz_anag, userid = uname_global)
             quiz_hook_bilex = partial(quiz_hook_bilex, userid = uname_global)
