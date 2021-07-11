@@ -1147,7 +1147,9 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
         usr_lex = usr_lex.fetchall()
         lexlist = usr_lex[0][0]
     # Stating the lexicon list for additional reference.
-    print('lexlist = ' + lexlist)
+    print('lexlist = ')
+    for lex in lexlist:
+        print('  ' + lex)
     
     # It is useful to create a string of lexica for use
     if len(lexlist) == 1:
@@ -1230,7 +1232,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                             # This was "tram_answers
                             gram_answers.extend(entry)
                     for m in range(len(gram_answers)):
-                        if gram_answers[m] in curr_entries
+                        if gram_answers[m] in curr_entries:
                             answers_lexica[m] += str(m)
                 # Sorting simultaneously
                 zipped_lists = zip(gram_answers, answers_lexica)
@@ -1240,7 +1242,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                 # Converting lists to strings
                 gram_ans_str = ''
                 ans_lex_str = ''
-                for (ell in range(len(gram_answers)):
+                for ell in range(len(gram_answers)):
                     if ell > 0:
                         gram_ans_str += '_'
                         ans_lex_str += '_'
@@ -1376,6 +1378,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
         print('Thanks for quizzing!')
 
 
+# Will be edited to be multilexical
 def quiz_hook_bilex(list_len, userid = None, lex1 = None, lex2 = None,\
                     listname = True, lex_subset = True):
     hooklist = []
