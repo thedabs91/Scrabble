@@ -94,21 +94,29 @@ def quiz_anag_bilex_db(lex1, lex2):
     conn.commit()
 
 def quiz_anag_mlex_db(lexlist):
-    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_anag_' + lex1+'_'+lex2 +\
-                 '''(   
-                        user text NOT NULL,
-                        gram text NOT NULL,
-                        answers text,
-                        lexica text,
-                        num_cor integer,
-                        num_inc integer,
-                        wt_cor double,
-                        wt_inc double,
-                        prob_val double,
-                        FOREIGN KEY (user) REFERENCES users (user)
-                    );'''
-    create_table(conn, sql_create)
-    conn.commit()
+    if len(lexlist) == 1:
+        quiz_anag_db(lexlist[0])
+    else:
+        leges = ''
+        for lex in lexlist:
+            leges += lex+'_'
+        leges = leges.rstrip('_')
+        sql_create = 'CREATE TABLE IF NOT EXISTS quiz_anag_' + leges +\
+                     '''(   
+                            user text NOT NULL,
+                            gram text NOT NULL,
+                            answers text,
+                            lexica text,
+                            num_cor integer,
+                            num_inc integer,
+                            wt_cor double,
+                            wt_inc double,
+                            prob_val double,
+                            FOREIGN KEY (user) REFERENCES users (user)
+                        );'''
+        create_table(conn, sql_create)
+        conn.commit()
+
 
 # Table for hook quizzes
 def quiz_hook_db_drop(lexicon):
@@ -150,8 +158,12 @@ def quiz_hook_bilex_db(lex1, lex2):
     create_table(conn, sql_create)
     conn.commit()
 
-def quiz_hook_mlex_db(lexicon):
-    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_hook_' + lexicon +\
+def quiz_hook_mlex_db(lexlist):
+    leges = ''
+    for lex in lexlist:
+        leges += lex+'_'
+    leges = leges.rstrip('_')
+    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_hook_' + leges +\
                   '''(
                          user text NOT NULL,
                          word text NOT NULL,
@@ -1117,7 +1129,7 @@ def quiz_hook_bilex(list_len, userid = None, lex1 = None, lex2 = None,\
 
 ## CREATING MULTILEXICAL QUIZZES
 
-# Now I am editing these functions to be bilexical!
+# Now I am editing these functions to be multilexical!
 def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                     listname = True):
     # This quiz will be bilexical
@@ -1126,6 +1138,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
     
     c = conn.cursor()
     
+    
     # Using default lexica if unspecified
     # DOUBLE CHECK AFTER lexlist CREATED IN users DATABASE!!
     if lexlist == None:
@@ -1133,7 +1146,14 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
         usr_lex = c.execute(sql, (userid,))
         usr_lex = usr_lex.fetchall()
         lexlist = usr_lex[0][0]
-        print('lexlist = ' + lexlist)
+    # Stating the lexicon list for additional reference.
+    print('lexlist = ' + lexlist)
+    
+    # It is useful to create a string of lexica for use
+    leges = ''
+    for lex in lexlist:
+        leges += lex+'_'
+    leges = leges.rstrip('_')
     
     # It could be good to do multiple lists at the same time.
     gramlistlist = []
@@ -1143,7 +1163,11 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
         # Combining into 1.
         gramlist = list(set(gramlistlist))
         gramlist.sort()
+        # To save space for later ...?
+        gramlistlist = None
     # Here I note that I did not save the lexica for each answer!
+    # These were not answers, they were grams.
+            
         
     
     print('You are quizzing!')   
@@ -1158,7 +1182,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
     # Incorporating elements previously in the quiz_anag table
     qa_entries = []
     for k in range(len(gramlist)):
-        sql_search_qa = 'SELECT * FROM quiz_anag_' + lex1+'_'+lex2 +\
+        sql_search_qa = 'SELECT * FROM quiz_anag_' + leges +\
                         ' WHERE gram = ? AND user = ?'
         curr_entry = c.execute(sql_search_qa, (gramlist[k], userid))
         curr_entry = curr_entry.fetchall()
@@ -1173,44 +1197,45 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
         prb_list.append(qa_entries[k][8])
         if qa_entries[k][1] in gramlist:
             gramlist.remove(qa_entries[k][1])
-            try:
-                gramlist1.remove(qa_entries[k][1])
-            except ValueError:
-                pass
-            try:
-                gramlist2.remove(qa_entries[k][1])
-            except ValueError:
-                pass
+            #try:
+            #    gramlist1.remove(qa_entries[k][1])
+            #except ValueError:
+            #    pass
+            #try:
+            #    gramlist2.remove(qa_entries[k][1])
+            #except ValueError:
+            #    pass
     
     # Now I will search the dictionary for any new information
     if len(gramlist) > 0:
         print(len(gramlist))
         lex_answers = []
         for k in range(len(gramlist)):
-            # lexicon 1
-            sql_search_lex = 'SELECT * FROM lexicon_' + lex1 + ' WHERE gram = ?'
-            curr_entries = c.execute(sql_search_lex, (gramlist[k],))
-            curr_entries = curr_entries.fetchall()
-            new_answer1 = ''
-            for ell in range(len(curr_entries)):
-                if ell > 0:
-                    new_answer1 += '_'
-                new_answer1 += curr_entries[ell][1]
-            # lexicon 2
-            sql_search_lex = 'SELECT * FROM lexicon_' + lex2 + ' WHERE gram = ?'
-            curr_entries = c.execute(sql_search_lex, (gramlist[k],))
-            curr_entries = curr_entries.fetchall()
-            new_answer2 = ''
-            for ell in range(len(curr_entries)):
-                if ell > 0:
-                    new_answer2 += '_'
-                new_answer2 += curr_entries[ell][1]
+            gram_answers = []
+            answers_lexica = ['' for ell in range(len(gramlist))]
+            for ell in range(len(lexlist)):
+                # lexicon lex
+                sql_search_lex = 'SELECT * FROM lexicon_' + lexlist[ell] + ' WHERE gram = ?' 
+                curr_entries = c.execute(sql_search_lex, (gramlist[k],))
+                curr_entries = curr_entries.fetchall()
+                for entry in curr_entries:
+                    if not (entry in curr_answers):
+                        tram_answers.extend(entry)
+                for m in range(len(gram_answers)):
+                    if gram_answers[m] in curr_entries
+                        answers_lexica[m] += str(m)
+            # Sorting simultaneously
+            zipped_lists = zip(gram_answers, answers_lexica)
+            sorted_pairs = sorted(zipped_lists)
+            tuples = zip(*sorted_pairs)
+            gram_answers, answers_lexica = [list(tuple) for tuple in tuples]
             # Appending results
-            lex_answers.append([gramlist[k], new_answer1, new_answer2])
+            # They are lists here.
+            lex_answers.append([gramlist[k], gram_answers, answers_lexica])
         
         
         for k in range(len(lex_answers)):
-            sql = 'INSERT INTO quiz_anag_' + lex1+'_'+lex2 +\
+            sql = 'INSERT INTO quiz_anag_' + leges +\
                   '''(user,gram,answers1,answers2,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                      VALUES(?,?,?,?,?,?,?,?,?)'''
             c.execute(sql, (userid, lex_answers[k][0], lex_answers[k][1],\
