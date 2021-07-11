@@ -1206,14 +1206,6 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
             prb_list.append(qa_entries[k][8])
             if qa_entries[k][1] in gramlist:
                 gramlist.remove(qa_entries[k][1])
-                #try:
-                #    gramlist1.remove(qa_entries[k][1])
-                #except ValueError:
-                #    pass
-                #try:
-                #    gramlist2.remove(qa_entries[k][1])
-                #except ValueError:
-                #    pass
         
         # Now I will search the dictionary for any new information
         if len(gramlist) > 0:
@@ -1228,8 +1220,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                     curr_entries = c.execute(sql_search_lex, (gramlist[k],))
                     curr_entries = curr_entries.fetchall()
                     for entry in curr_entries:
-                        if not (entry in curr_answers):
-                            # This was "tram_answers
+                        if not (entry in gram_answers):
                             gram_answers.extend(entry)
                     for m in range(len(gram_answers)):
                         if gram_answers[m] in curr_entries:
