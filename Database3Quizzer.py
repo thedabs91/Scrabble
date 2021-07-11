@@ -1213,22 +1213,26 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
             lex_answers = []
             for k in range(len(gramlist)):
                 gram_answers = []
-                answers_lexica = ['' for ell in range(len(gramlist))]
+                answers_lexica = []
                 for ell in range(len(lexlist)):
                     # lexicon lex
                     sql_search_lex = 'SELECT * FROM lexicon_' + lexlist[ell] + ' WHERE gram = ?' 
                     curr_entries = c.execute(sql_search_lex, (gramlist[k],))
                     curr_entries = curr_entries.fetchall()
+                    curr_words = []
                     for entry in curr_entries:
-                        if not (entry in gram_answers):
-                            gram_answers.extend(entry)
+                        # Only saving the word for now
+                        word = entry[1]
+                        curr_words.append(word)
+                        if not (word in gram_answers):
+                            gram_answers.append(word)
+                            answers_lexica.append('')
                     for m in range(len(gram_answers)):
-                        if gram_answers[m] in curr_entries:
-                            answers_lexica[m] += str(m)
+                        if gram_answers[m] in curr_words:
+                            answers_lexica[m] += str(ell)
                 # Sorting simultaneously
                 zipped_lists = zip(gram_answers, answers_lexica)
                 sorted_pairs = sorted(zipped_lists)
-                tuples = zip(*sorted_pairs)
                 gram_answers, answers_lexica = [list(tuple) for tuple in tuples]
                 # Converting lists to strings
                 gram_ans_str = ''
@@ -1263,7 +1267,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
         # If anything is left, it has no anagrams
         if len(gramlist) > 0:
             for gram in gramlist:
-                sql = 'INSERT INTO quiz_anag_' + lex1+'_'+lex2 +\
+                sql = 'INSERT INTO quiz_anag_' + leges +\
                       '''(user,gram,answers,lexica,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                          VALUES(?,?,?,?,?,?,?,?,?)'''
                 c.execute(sql, (userid, gram, '', '', 0,0,0,0,5))
@@ -1346,7 +1350,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
             print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
                   str(round(new_prob,2)))
             # Updating the database
-            sql = 'UPDATE quiz_anag_' + lex1+'_'+lex2 +\
+            sql = 'UPDATE quiz_anag_' + leges +\
                   ''' SET num_cor = ?,
                           num_inc = ?,
                           wt_cor = ?,
@@ -1370,8 +1374,8 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
 
 
 # Will be edited to be multilexical
-def quiz_hook_bilex(list_len, userid = None, lex1 = None, lex2 = None,\
-                    listname = True, lex_subset = True):
+def quiz_hook_mlex(list_len, userid = None, lex1 = None, lex2 = None,\
+                   listname = True, lex_subset = True):
     hooklist = []
     c = conn.cursor()
     
