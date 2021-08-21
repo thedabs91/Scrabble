@@ -39,7 +39,8 @@ sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
                                  multiplier integer NOT NULL,
                                  lexicon text,
                                  lex1 text,
-                                 lex2 text
+                                 lex2 text,
+                                 lixlist text
                              ); """
 
 conn = connector(database)
@@ -50,15 +51,15 @@ else:
 
 
 def create_user(username, ltrorder, multiplier, lexicon = None,\
-                lex1 = None , lex2 = None):
+                lex1 = None , lex2 = None, lexlist = None):
     """
     Creating a new user
     """
     sql = ''' INSERT INTO users(user, letterorder, multiplier,\
-                                lexicon, lex1, lex2)
-              VALUES(?,?,?,?,?,?) '''
+                                lexicon, lex1, lex2, lexlist)
+              VALUES(?,?,?,?,?,?,?) '''
     cur = conn.cursor()
-    userrow = (username, ltrorder, multiplier, lexicon, lex1, lex2)
+    userrow = (username, ltrorder, multiplier, lexicon, lex1, lex2, lexlist)
     cur.execute(sql, userrow)
     conn.commit()
     return(cur.lastrowid)
