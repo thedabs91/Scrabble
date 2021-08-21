@@ -71,8 +71,7 @@ Steps:
     You will be prompted to login by typing your username upon loading
       Database3Quizzer into python. If you would like to change users or
       login after loading, use
-    >>> uname_global = dq.login_fxn()
-    NEVERMIND!! This does not work.
+    >>> dq.uname_global = dq.login_fxn()
 
 13) The next step is create a databases with the lexica and quiz types that
       you want.
