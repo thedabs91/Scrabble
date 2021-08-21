@@ -169,6 +169,8 @@ def quiz_hook_mlex_db(lexlist):
                          word text NOT NULL,
                          fhook text,
                          bhook text,
+                         fhook_lex text,
+                         bhook_lex text,
                          num_cor integer,
                          num_inc integer,
                          wt_cor double,
@@ -1131,7 +1133,7 @@ def quiz_hook_bilex(list_len, userid = None, lex1 = None, lex2 = None,\
 
 # Now I am editing these functions to be multilexical!
 def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
-                    listname = True):
+                   listname = True):
     # This quiz will be bilexical
     # This makes no assumptions of a lexicon being a subset
     # ... of another lexicon
@@ -1374,41 +1376,61 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
 
 
 # Will be edited to be multilexical
-def quiz_hook_mlex(list_len, userid = None, lex1 = None, lex2 = None,\
+def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                    listname = True, lex_subset = True):
     hooklist = []
     c = conn.cursor()
     
     # Using default lexica if unspecified
-    if lex1 == None:
-        sql = 'SELECT lex1 FROM users WHERE user = ?'
+    if lexlist == None:
+        sql = 'SELECT lexlist FROM users WHERE user = ?'
         usr_lex = c.execute(sql, (userid,))
         usr_lex = usr_lex.fetchall()
-        lex1 = usr_lex[0][0]
-        print('lex1 = ' + lex1)
-    if lex2 == None:
-        sql = 'SELECT lex2 FROM users WHERE user = ?'
-        usr_lex = c.execute(sql, (userid,))
-        usr_lex = usr_lex.fetchall()
-        lex2 = usr_lex[0][0]
-        print('lex2 = ' + lex2)
+        lexlist = usr_lex[0][0]
+        lexlist = lexlist.split()
+    
+    numlex = len(lexlist)
+    if numlex > 10:
+        print('Too many lexica! Try fewer!')
+        lexlist = []
+        k = 0
+        stop = False
+        while stop = False:
+            newlex = input('Lexicon ' + k + ': ')
+            k += 1
+            if newlex == 'q':
+                stop = True
+            else:
+                lexlist.append(newlex)
+            if k == 10:
+                stop = True
+        numlex = len(lexlist)
+    
+    print('lexica:')
+    k = 0
+    for lex in lexlist:
+        print(str(k) + ': ' + lex)
+        k += 1
     
     # It could be good to do multiple lists at the same time.
     if str(type(list_len)) == "<class 'int'>":
-        hookcheck = 'SELECT * FROM lexicon_' + lex1 + ' WHERE length = ?'
-        datalist = c.execute(hookcheck, (list_len,))
-        datalist = datalist.fetchall()
-        hookcheck = 'SELECT * FROM lexicon_' + lex2 + ' WHERE length = ?'
-        datalist2 = c.execute(hookcheck, (list_len,))
-        datalist2 = datalist2.fetchall()
-        datalist.extend(datalist2)
+        datalist = []
+        for k in range(numlex):
+            hookcheck = 'SELECT * FROM lexicon_' + lexlist[k] + ' WHERE length = ?'
+            datalist_k = c.execute(hookcheck, (list_len,))
+            datalist_k = datalist_k.fetchall()
+            datalist.extend(datalist_k)
         for data in datalist:
             hooklist.append(data[1])
-        hooklist = list(set(hooklist))
     
     if str(type(list_len)) == "<class 'str'>":   
         if listname:
-            hooklist = extract_hook(list_len, lex1)
+            hooklist = []
+            for k in range(numlex):
+                hooklist.extend(extract_hook(list_len, lex1))
+    
+    # Removing duplicates
+    hooklist = list(set(hooklist))
     
     # Adding entries to quiz_hook if necessary.
     for word in hooklist:
@@ -1416,12 +1438,10 @@ def quiz_hook_mlex(list_len, userid = None, lex1 = None, lex2 = None,\
         hookcheck = c.execute(hookcheck, (word,))
         hookcheck = hookcheck.fetchall()
         if len(hookcheck) == 0:
-            adddata1 = 'SELECT * FROM lexicon_' + lex1 + ' WHERE word = ?'
-            adddata1 = c.execute(adddata1, (word,))
-            adddata1 = adddata1.fetchall()
-            adddata2 = 'SELECT * FROM lexicon_' + lex2 + ' WHERE word = ?'
-            adddata2 = c.execute(adddata2, (word,))
-            adddata2 = adddata2.fetchall()
+            for k in range(numlex):
+                 adddata_k = 'SELECT * FROM lexicon_' + lexlist[k] + ' WHERE word = ?'
+                 adddata_k = c.execute(adddata_k, (word,))
+                 adddata_k = adddata_k.fetchall()
             if len(adddata1) > 0 and len(adddata2) > 0:
                 hookadd = 'INSERT INTO quiz_hook_' + lex1+'_'+lex2 +\
                           '''(user, word, fhook1, fhook2, bhook1, bhook2,
