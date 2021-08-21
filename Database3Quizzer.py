@@ -1386,8 +1386,13 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         sql = 'SELECT lexlist FROM users WHERE user = ?'
         usr_lex = c.execute(sql, (userid,))
         usr_lex = usr_lex.fetchall()
-        lexlist = usr_lex[0][0]
-        lexlist = lexlist.split()
+        leges = usr_lex[0][0]
+        lexlist = leges.split()
+    else:
+        leges = ''
+        for lex in lexlist:
+            leges += lex + '_'
+        leges.rstrip('_')
     
     numlex = len(lexlist)
     if numlex > 10:
@@ -1433,43 +1438,26 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
     hooklist = list(set(hooklist))
     
     # Adding entries to quiz_hook if necessary.
+    # This seems like updating to me
     for word in hooklist:
-        hookcheck = 'SELECT * FROM quiz_hook_' + lex1+'_'+lex2 + ' WHERE word = ?'
+        hookcheck = 'SELECT * FROM quiz_hook_' + leges + ' WHERE word = ?'
         hookcheck = c.execute(hookcheck, (word,))
         hookcheck = hookcheck.fetchall()
         if len(hookcheck) == 0:
+            fhooks = []
+            bhooks = []
             for k in range(numlex):
                  adddata_k = 'SELECT * FROM lexicon_' + lexlist[k] + ' WHERE word = ?'
                  adddata_k = c.execute(adddata_k, (word,))
                  adddata_k = adddata_k.fetchall()
-            if len(adddata1) > 0 and len(adddata2) > 0:
-                hookadd = 'INSERT INTO quiz_hook_' + lex1+'_'+lex2 +\
-                          '''(user, word, fhook1, fhook2, bhook1, bhook2,
-                                                   num_cor, num_inc, wt_cor, wt_inc,
-                                                   prob_val)
-                             VALUES(?,?,?,?,?,?,?,?,?,?,?)'''
-                c.execute(hookadd, (userid, word, adddata1[0][9], adddata2[0][9],\
-                                    adddata1[0][10], adddata2[0][10],\
-                                    0,0,0,0,5))
-            elif len(adddata1) > 0 and len(adddata2) == 0:
-                hookadd = 'INSERT INTO quiz_hook_' + lex1+'_'+lex2 +\
-                          '''(user, word, fhook1, fhook2, bhook1, bhook2,
-                                                   num_cor, num_inc, wt_cor, wt_inc,
-                                                   prob_val)
-                             VALUES(?,?,?,?,?,?,?,?,?,?,?)'''
-                c.execute(hookadd, (userid, word, adddata1[0][9], '',\
-                                    adddata1[0][10], '',\
-                                    0,0,0,0,5))
-            elif len(adddata1) == 0 and len(adddata2) > 0:
-                hookadd = 'INSERT INTO quiz_hook_' + lex1+'_'+lex2 +\
-                          '''(user, word, fhook1, fhook2, bhook1, bhook2,
-                                                   num_cor, num_inc, wt_cor, wt_inc,
-                                                   prob_val)
-                             VALUES(?,?,?,?,?,?,?,?,?,?,?)'''
-                c.execute(hookadd, (userid, word, '', adddata2[0][9],\
-                                    '', adddata2[0][10],\
-                                    0,0,0,0,5))
-            conn.commit()
+                 if len(adddata_k) > 0:
+                     fhooks.extend(list(adddata_k[0][9]))
+                     bhooks.extend(list(adddata_k[0][10]))
+                 if k < numlex-1:
+                     fhooks.append('_')
+                     bhooks.append('_')
+        # Now it is time to add the hooks into lists
+        conn.commit()
     
     print('You are quizzing!')   
     
