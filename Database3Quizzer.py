@@ -1375,7 +1375,32 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
         print('Thanks for quizzing!')
 
 
-# Will be edited to be multilexical
+
+
+# Next is a Hook quiz
+
+
+
+
+
+
+# A useful function
+# There is likely a better solution (re library?)
+def hooksplit(str):
+    str = str.upper()
+    out = []
+    ctr = -1
+    for char in str:
+        if char in string.ascii_uppercase:
+            ctr += 1
+            out.insert(ctr, char)
+        else:
+            out[ctr] += char
+    return(out)
+
+
+
+
 def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                    listname = True, lex_subset = True):
     hooklist = []
@@ -1389,10 +1414,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         leges = usr_lex[0][0]
         lexlist = leges.split()
     else:
-        leges = ''
-        for lex in lexlist:
-            leges += lex + '_'
-        leges.rstrip('_')
+        leges = '_'.join(lexlist)
     
     numlex = len(lexlist)
     if numlex > 10:
@@ -1474,7 +1496,33 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                 pos += 1
             else:
                 pos += 1
+        k = 0
+        pos = 0
+        bhook_new = ''
+        bhook_lex_new = []
+        for hk in bhooks:
+            if hk == '_':
+                k += 1
+                pos = 0
+            elif bhook_new = '' or hk < bhook_new[pos]:
+                bhook_new = hk + bhook_new
+                bhook_lex_new.insert(pos, str(k))
+                pos += 1
+            elif hk == bhook_new[pos]:
+                bhook_lex_new[pos] = bhook_lex_new[pos] + str(k)
+                pos += 1
+            else:
+                pos += 1
         # Now do the same for back hooks and commit
+        fhook_lex_new = '_'.join(fhook_lex_new)
+        bhook_lex_new = '_'.join(bhook_lex_new)
+        sql = 'UPDATE quiz_hook_' + leges +\
+               ''' SET fhook = ?,
+                       bhook = ?,
+                       fhook_new = ?,
+                       bhook_new = ?,
+                   WHERE word = ?'''
+        c.execute(sql, (fhook_new, bhook_new, fhook_lex_new, bhook_lex_new))
         conn.commit()
     
     print('You are quizzing!')   
@@ -1489,7 +1537,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
     # I would like to do this without a 'for' loop.
     qh_entries = []
     for k in range(len(hooklist)):
-        sql_search_qh = 'SELECT * FROM quiz_hook_' + lex1+'_'+lex2 + \
+        sql_search_qh = 'SELECT * FROM quiz_hook_' + leges + \
                         ' WHERE word = ? AND user = ?'
         curr_entry = c.execute(sql_search_qh, (hooklist[k], userid))
         curr_entry = curr_entry.fetchall()
@@ -1512,63 +1560,27 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         while pick > prb_cumsum[k]:
             k += 1
         question = qh_entries[k][1]
-        fhook1 = qh_entries[k][2]
-        fhook2 = qh_entries[k][3]
-        bhook1 = qh_entries[k][4]
-        bhook2 = qh_entries[k][5]
-        fhook_key1 = list(set(fhook1) - set(fhook2))
-        fhook_key2 = list(set(fhook2) - set(fhook1))
-        fhook_key3 = list(set(fhook1) & set(fhook2))
-        bhook_key1 = list(set(bhook1) - set(bhook2))
-        bhook_key2 = list(set(bhook2) - set(bhook1))
-        bhook_key3 = list(set(bhook1) & set(bhook2))
-        fhook_key1 = resort(''.join(fhook_key1), ltrord)
-        fhook_key2 = resort(''.join(fhook_key2), ltrord)
-        fhook_key3 = resort(''.join(fhook_key3), ltrord)
-        bhook_key1 = resort(''.join(bhook_key1), ltrord)
-        bhook_key2 = resort(''.join(bhook_key2), ltrord)
-        bhook_key3 = resort(''.join(bhook_key3), ltrord)
+        fhook = qh_entries[k][2]
+        bhook = qh_entries[k][3]
+        fhook_lex = qh_entries[k][4]
+        bhook_lex = qh_entries[k][5]
         if lex_subset:
             fhook_key2 = ''
             bhook_key2 = ''
         endq = False
         print(question)
-        print('Front Hooks?')
-        fhook_ans1 = input(lex1 +' only? ')
-        fhook_ans1 = fhook_ans1.upper()
-        fhook_ans1 = resort(fhook_ans1, ltrord)
-        fhook_ans2 = ''
-        if not lex_subset:
-            fhook_ans2 = input(lex2 + ' only? ')
-            fhook_ans2 = fhook_ans2.upper()
-            fhook_ans2 = resort(fhook_ans2, ltrord)
-        fhook_ans3 = input('both ' + lex1 + ' and ' + lex2 + '? ')
-        fhook_ans3 = fhook_ans3.upper()
-        fhook_ans3 = resort(fhook_ans3, ltrord)
-        print('Back Hooks? ')
-        bhook_ans1 = input(lex1 +' only? ')
-        bhook_ans1 = bhook_ans1.upper()
-        bhook_ans1 = resort(bhook_ans1, ltrord)
-        bhook_ans2 = ''
-        if not lex_subset:
-            bhook_ans2 = input(lex2 + ' only? ')
-            bhook_ans2 = bhook_ans2.upper()
-            bhook_ans2 = resort(bhook_ans2, ltrord)
-        bhook_ans3 = input('both ' + lex1 + ' and ' + lex2 + '? ')
-        bhook_ans3 = bhook_ans3.upper()
-        bhook_ans3 = resort(bhook_ans3, ltrord)
-        if fhook_ans3 == 'Q' and bhook_ans3 == 'Q':
+        fhook_ans = input('Front Hooks?: ')
+        fhook_ans = fhook_ans.upper()
+        bhook_ans = input('Back Hooks?: ')
+        bhook_ans = bhook_ans.upper()
+        if fhook_ans == 'Q' and bhook_ans == 'Q':
             quiz = False
         print('Front Hooks:')
-        print(fhook_key1)
-        if not lex_subset:
-            print(fhook_key2)
-        print(fhook_key3)
+        print(fhook)
+        print(fhook_lex)
         print('Back Hooks:')
-        print(bhook_key1)
-        if not lex_subset:
-            print(bhook_key2)
-        print(bhook_key3)
+        print(bhook)
+        print(bhook_lex)
         
         answers = []
         for ltr in fhook_key2.join([fhook_key1, fhook_key3]):
@@ -1586,7 +1598,22 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         for datum in answer_data:
             print(datum)
         if quiz:
+            fhook_alist = hooksplit(fhook_ans)
+            fhook_leges = fhook_lex.split('_')
+            bhook_alist = hooksplit(bhook_ans)
+            bhook_leges = bhook_lex.split('_')
             qatt += 1
+            correct = True
+            for ctr in range(fhook_alist):
+                if fhook_alist[ctr][0] != fhook[ctr]:
+                    correct = False
+                    break
+                elif fhook_alist[ctr][1:] != fhook_leges[ctr] or\
+                     (fhook_alist[ctr][1:] != '' or\
+                      fhook_leges[ctr] != ???):
+                    ### ??? = '0...numlex', the string from 0 to the number of lexica
+                
+            
             if fhook_ans1 == fhook_key1 and fhook_ans2 == fhook_key2 and \
                fhook_ans3 == fhook_key3 and bhook_ans1 == bhook_key1 and \
                bhook_ans2 == bhook_key2 and bhook_ans3 == bhook_key3:
