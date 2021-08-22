@@ -1457,6 +1457,24 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                      fhooks.append('_')
                      bhooks.append('_')
         # Now it is time to add the hooks into lists
+        k = 0
+        pos = 0
+        fhook_new = ''
+        fhook_lex_new = []
+        for hk in fhooks:
+            if hk == '_':
+                k += 1
+                pos = 0
+            elif fhook_new = '' or hk < fhook_new[pos]:
+                fhook_new = hk + fhook_new
+                fhook_lex_new.insert(pos, str(k))
+                pos += 1
+            elif hk == fhook_new[pos]:
+                fhook_lex_new[pos] = fhook_lex_new[pos] + str(k)
+                pos += 1
+            else:
+                pos += 1
+        # Now do the same for back hooks and commit
         conn.commit()
     
     print('You are quizzing!')   
@@ -1666,14 +1684,44 @@ def login_fxn():
             if usrupd_code.lower() == 'y':
                 lex_code = input('Update lexica (y/n)?: ')
                 if lex_code.lower() == 'y':
+                    print('If you do not want to update a lexicon, type the letter "n".')
                     lexicon_new = input('Preferred lexicon for unilexical quizzes: ')
                     lexicon_new = lexicon_new.strip(' ')
+                    if lexicon_new.lower() == 'n'
+                        sql = 'SELECT lexicon FROM users WHERE user = ?'
+                        lex_sql = c.execute(sql, (uname_global,))
+                        lex_sql = lex_sql.fetchall()
+                        lexicon = lex_sql[0][0]
                     bilex_new = input('Bilex lexicon order: ')
-                    bilex_new = bilex_new.split(',')
-                    lex1_new = bilex_new[0].strip()
-                    lex2_new = bilex_new[1].strip()
-                    sql = 'UPDATE users SET lexicon = ?, lex1 = ?, lex2 = ? WHERE user = ?'
-                    c.execute(sql, (lexicon_new, lex1_new, lex2_new, uname_global))
+                    if bilex_new.lower() == 'n'
+                        sql = 'SELECT lex1 FROM users WHERE user = ?'
+                        lex_sql = c.execute(sql, (uname_global,))
+                        lex_sql = lex_sql.fetchall()
+                        lex1_new = lex_sql[0][0]
+                        sql = 'SELECT lex2 FROM users WHERE user = ?'
+                        lex_sql = c.execute(sql, (uname_global,))
+                        lex_sql = lex_sql.fetchall()
+                        lex2_new = lex_sql[0][0]
+                    else:
+                        bilex_new = bilex_new.split(',')
+                        lex1_new = bilex_new[0].strip()
+                        lex2_new = bilex_new[1].strip()
+                    mlex_new = input('Multilex lexica: ')
+                    if lexlist_new.lower() == 'n'
+                        sql = 'SELECT lexlist FROM users WHERE user = ?'
+                        lex_sql = c.execute(sql, (uname_global,))
+                        lex_sql = lex_sql.fetchall()
+                        lexlist_new = lex_sql[0][0]
+                    else:
+                        mlex_new = mlex_new.split(',')
+                        mlex_new = [lex.strip() for lex in mlex_new]
+                        lexlist_new = ''
+                        for lex in mlex_new:
+                            lexlist_new += lex + '_'
+                        lexlist_new = lexlist_new.rstrip('_')
+                    sql = '''UPDATE users SET lexicon = ?, lex1 = ?, lex2 = ?,
+                             lexlist = ?, WHERE user = ?'''
+                    c.execute(sql, (lexicon_new, lex1_new, lex2_new, lexlist, uname_global))
                     conn.commit()
                 ltrord_code = input('Update letter order (y/n)?: ')
                 if ltrord_code.lower() == 'y':
