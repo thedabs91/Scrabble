@@ -1548,6 +1548,11 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
     for k in range(len(qh_entries)):
         prb_list.append(qh_entries[k][10])
     
+    # One last constant: the alllex string
+    alllex = ''
+    for k in range(numlex):
+        alllex += str(k)
+    
     # Now we will begin the quizzing
     quiz = True
     qatt = 0
@@ -1598,25 +1603,42 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         for datum in answer_data:
             print(datum)
         if quiz:
+            # Taking and sorting answers
             fhook_alist = hooksplit(fhook_ans)
+            fhook_alist.sort()
             fhook_leges = fhook_lex.split('_')
             bhook_alist = hooksplit(bhook_ans)
+            bhook_alist.sort()
             bhook_leges = bhook_lex.split('_')
             qatt += 1
+            # Checking against the key
             correct = True
             for ctr in range(fhook_alist):
+                fh1 = list(fhook_alist[ctr][1:])
+                fh1.sort()
+                fh1 = ''.join(fh1)
                 if fhook_alist[ctr][0] != fhook[ctr]:
                     correct = False
                     break
-                elif fhook_alist[ctr][1:] != fhook_leges[ctr] or\
-                     (fhook_alist[ctr][1:] != '' or\
-                      fhook_leges[ctr] != ???):
-                    ### ??? = '0...numlex', the string from 0 to the number of lexica
-                
+                elif fh1 != fhook_leges[ctr] and\
+                     (fh1 != '' or fhook_leges[ctr] != alllex):
+                    correct = False
+                    break
+            if correct:
+                for ctr in range(bhook_alist):
+                    bh1 = list(bhook_alist[ctr][1:])
+                    bh1.sort()
+                    bh1 = ''.join(bh1)
+                    if bhook_alist[ctr][0] != bhook[ctr]:
+                        correct = False
+                        break
+                    elif bh1 != bhook_leges[ctr] and\
+                         (bh1 != '' or bhook_leges[ctr] != alllex):
+                        correct = False
+                        break
             
-            if fhook_ans1 == fhook_key1 and fhook_ans2 == fhook_key2 and \
-               fhook_ans3 == fhook_key3 and bhook_ans1 == bhook_key1 and \
-               bhook_ans2 == bhook_key2 and bhook_ans3 == bhook_key3:
+            
+            if correct:
                 qcor += 1
                 new_cor = qh_entries[k][6] + 1
                 new_inc = qh_entries[k][7]
@@ -1655,7 +1677,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
             print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
                   str(round(new_prob,2)))
             # Updating the database
-            sql = 'UPDATE quiz_hook_' + lex1+'_'+lex2 +\
+            sql = 'UPDATE quiz_hook_' + leges +\
                   ''' SET num_cor = ?,
                           num_inc = ?,
                           wt_cor = ?,
