@@ -1421,7 +1421,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         print('Too many lexica! Try fewer!')
         lexlist = []
         k = 0
-        stop = False
+        stop == False
         while stop = False:
             newlex = input('Lexicon ' + k + ': ')
             k += 1
@@ -1487,13 +1487,16 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
             if hk == '_':
                 k += 1
                 pos = 0
-            elif fhook_new = '' or hk < fhook_new[pos]:
-                fhook_new = hk + fhook_new
+            elif pos == len(fhook_new):
+                fhook_new += hk
+                fhook_lex_new.insert(pos, str(k))
+                pos += 1
+            elif hk < fhook_new[pos]:
+                fhook_new = fhook_new[:pos] + hk + fhook_new[pos:]
                 fhook_lex_new.insert(pos, str(k))
                 pos += 1
             elif hk == fhook_new[pos]:
                 fhook_lex_new[pos] = fhook_lex_new[pos] + str(k)
-                pos += 1
             else:
                 pos += 1
         k = 0
@@ -1504,13 +1507,16 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
             if hk == '_':
                 k += 1
                 pos = 0
-            elif bhook_new = '' or hk < bhook_new[pos]:
-                bhook_new = hk + bhook_new
+            elif pos == len(bhook_new):
+                bhook_new += hk
+                bhook_lex_new.insert(pos, str(k))
+                pos += 1
+            elif hk < bhook_new[pos]:
+                bhook_new = bhook_new[:pos] + hk + bhook_new[pos:]
                 bhook_lex_new.insert(pos, str(k))
                 pos += 1
             elif hk == bhook_new[pos]:
                 bhook_lex_new[pos] = bhook_lex_new[pos] + str(k)
-                pos += 1
             else:
                 pos += 1
         # Now do the same for back hooks and commit
@@ -1522,7 +1528,8 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                        fhook_new = ?,
                        bhook_new = ?,
                    WHERE word = ?'''
-        c.execute(sql, (fhook_new, bhook_new, fhook_lex_new, bhook_lex_new))
+        c.execute(sql, (fhook_new, bhook_new, fhook_lex_new, bhook_lex_new,\
+                        word))
         conn.commit()
     
     print('You are quizzing!')   
@@ -1736,13 +1743,13 @@ def login_fxn():
                     print('If you do not want to update a lexicon, type the letter "n".')
                     lexicon_new = input('Preferred lexicon for unilexical quizzes: ')
                     lexicon_new = lexicon_new.strip(' ')
-                    if lexicon_new.lower() == 'n'
+                    if lexicon_new.lower() == 'n':
                         sql = 'SELECT lexicon FROM users WHERE user = ?'
                         lex_sql = c.execute(sql, (uname_global,))
                         lex_sql = lex_sql.fetchall()
                         lexicon = lex_sql[0][0]
                     bilex_new = input('Bilex lexicon order: ')
-                    if bilex_new.lower() == 'n'
+                    if bilex_new.lower() == 'n':
                         sql = 'SELECT lex1 FROM users WHERE user = ?'
                         lex_sql = c.execute(sql, (uname_global,))
                         lex_sql = lex_sql.fetchall()
@@ -1756,7 +1763,7 @@ def login_fxn():
                         lex1_new = bilex_new[0].strip()
                         lex2_new = bilex_new[1].strip()
                     mlex_new = input('Multilex lexica: ')
-                    if lexlist_new.lower() == 'n'
+                    if lexlist_new.lower() == 'n':
                         sql = 'SELECT lexlist FROM users WHERE user = ?'
                         lex_sql = c.execute(sql, (uname_global,))
                         lex_sql = lex_sql.fetchall()
