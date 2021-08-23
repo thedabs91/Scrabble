@@ -1525,8 +1525,8 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         sql = 'UPDATE quiz_hook_' + leges +\
                ''' SET fhook = ?,
                        bhook = ?,
-                       fhook_new = ?,
-                       bhook_new = ?,
+                       fhook_lex = ?,
+                       bhook_lex = ?
                    WHERE word = ?'''
         c.execute(sql, (fhook_new, bhook_new, fhook_lex_new, bhook_lex_new,\
                         word))
