@@ -1478,59 +1478,59 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                  if k < numlex-1:
                      fhooks.append('_')
                      bhooks.append('_')
-        # Now it is time to add the hooks into lists
-        k = 0
-        pos = 0
-        fhook_new = ''
-        fhook_lex_new = []
-        for hk in fhooks:
-            if hk == '_':
-                k += 1
-                pos = 0
-            elif pos == len(fhook_new):
-                fhook_new += hk
-                fhook_lex_new.insert(pos, str(k))
-                pos += 1
-            elif hk < fhook_new[pos]:
-                fhook_new = fhook_new[:pos] + hk + fhook_new[pos:]
-                fhook_lex_new.insert(pos, str(k))
-                pos += 1
-            elif hk == fhook_new[pos]:
-                fhook_lex_new[pos] = fhook_lex_new[pos] + str(k)
-            else:
-                pos += 1
-        k = 0
-        pos = 0
-        bhook_new = ''
-        bhook_lex_new = []
-        for hk in bhooks:
-            if hk == '_':
-                k += 1
-                pos = 0
-            elif pos == len(bhook_new):
-                bhook_new += hk
-                bhook_lex_new.insert(pos, str(k))
-                pos += 1
-            elif hk < bhook_new[pos]:
-                bhook_new = bhook_new[:pos] + hk + bhook_new[pos:]
-                bhook_lex_new.insert(pos, str(k))
-                pos += 1
-            elif hk == bhook_new[pos]:
-                bhook_lex_new[pos] = bhook_lex_new[pos] + str(k)
-            else:
-                pos += 1
-        # Now do the same for back hooks and commit
-        fhook_lex_new = '_'.join(fhook_lex_new)
-        bhook_lex_new = '_'.join(bhook_lex_new)
-        sql = 'UPDATE quiz_hook_' + leges +\
-               ''' SET fhook = ?,
-                       bhook = ?,
-                       fhook_lex = ?,
-                       bhook_lex = ?
-                   WHERE word = ?'''
-        c.execute(sql, (fhook_new, bhook_new, fhook_lex_new, bhook_lex_new,\
-                        word))
-        conn.commit()
+            # Now it is time to add the hooks into lists
+            k = 0
+            pos = 0
+            fhook_new = ''
+            fhook_lex_new = []
+            for hk in fhooks:
+                if hk == '_':
+                    k += 1
+                    pos = 0
+                elif pos == len(fhook_new):
+                    fhook_new += hk
+                    fhook_lex_new.insert(pos, str(k))
+                    pos += 1
+                elif hk < fhook_new[pos]:
+                    fhook_new = fhook_new[:pos] + hk + fhook_new[pos:]
+                    fhook_lex_new.insert(pos, str(k))
+                    pos += 1
+                elif hk == fhook_new[pos]:
+                    fhook_lex_new[pos] = fhook_lex_new[pos] + str(k)
+                else:
+                    pos += 1
+            k = 0
+            pos = 0
+            bhook_new = ''
+            bhook_lex_new = []
+            for hk in bhooks:
+                if hk == '_':
+                    k += 1
+                    pos = 0
+                elif pos == len(bhook_new):
+                    bhook_new += hk
+                    bhook_lex_new.insert(pos, str(k))
+                    pos += 1
+                elif hk < bhook_new[pos]:
+                    bhook_new = bhook_new[:pos] + hk + bhook_new[pos:]
+                    bhook_lex_new.insert(pos, str(k))
+                    pos += 1
+                elif hk == bhook_new[pos]:
+                    bhook_lex_new[pos] = bhook_lex_new[pos] + str(k)
+                else:
+                    pos += 1
+            # Now do the same for back hooks and commit
+            fhook_lex_new = '_'.join(fhook_lex_new)
+            bhook_lex_new = '_'.join(bhook_lex_new)
+            sql = 'UPDATE quiz_hook_' + leges +\
+                   ''' SET fhook = ?,
+                           bhook = ?,
+                           fhook_lex = ?,
+                           bhook_lex = ?
+                       WHERE word = ?'''
+            c.execute(sql, (fhook_new, bhook_new, fhook_lex_new, bhook_lex_new,\
+                            word))
+            conn.commit()
     
     print('You are quizzing!')   
     
