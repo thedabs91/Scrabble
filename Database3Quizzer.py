@@ -1233,9 +1233,10 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                         if gram_answers[m] in curr_words:
                             answers_lexica[m] += str(ell)
                 # Sorting simultaneously
+                # Combining into two lists, sorting, then separating back.
                 zipped_lists = zip(gram_answers, answers_lexica)
                 sorted_pairs = sorted(zipped_lists)
-                gram_answers, answers_lexica = [list(tuple) for tuple in sorted_pairs]
+                gram_answers, answers_lexica = (list(tuple) for tuple in zip(*sorted_pairs))
                 # Converting lists to strings
                 gram_ans_str = ''
                 ans_lex_str = ''
