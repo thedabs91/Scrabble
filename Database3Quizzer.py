@@ -1235,7 +1235,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                 # Sorting simultaneously
                 zipped_lists = zip(gram_answers, answers_lexica)
                 sorted_pairs = sorted(zipped_lists)
-                gram_answers, answers_lexica = [list(tuple) for tuple in tuples]
+                gram_answers, answers_lexica = [list(tuple) for tuple in sorted_pairs]
                 # Converting lists to strings
                 gram_ans_str = ''
                 ans_lex_str = ''
@@ -1731,10 +1731,14 @@ def login_fxn():
             global quiz_anag
             global quiz_hook_bilex
             global quiz_anag_bilex
+            global quiz_hook_mlex
+            global quiz_anag_mlex
             quiz_hook = partial(quiz_hook, userid = uname_global)
             quiz_anag = partial(quiz_anag, userid = uname_global)
             quiz_hook_bilex = partial(quiz_hook_bilex, userid = uname_global)
             quiz_anag_bilex = partial(quiz_anag_bilex, userid = uname_global)
+            quiz_hook_mlex = partial(quiz_hook_mlex, userid = uname_global)
+            quiz_anag_mlex = partial(quiz_anag_mlex, userid = uname_global)
             usrupd_code = input('Would you like to update defaults (y/n)?: ')
             # If you would want to update information on the defaults.
             if usrupd_code.lower() == 'y':
