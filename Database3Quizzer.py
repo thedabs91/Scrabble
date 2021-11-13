@@ -1234,9 +1234,9 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                             answers_lexica[m] += str(ell)
                 # Sorting simultaneously
                 # Combining into two lists, sorting, then separating back.
-                zipped_lists = zip(gram_answers, answers_lexica)
-                sorted_pairs = sorted(zipped_lists)
-                gram_answers, answers_lexica = (list(tuple) for tuple in zip(*sorted_pairs))
+                zipsort = zip(gram_answers, answers_lexica)
+                zipsort = sorted(zipsort)
+                gram_answers, answers_lexica = (list(tuple) for tuple in zip(*zipsort))
                 # Converting lists to strings
                 gram_ans_str = ''
                 ans_lex_str = ''
@@ -1261,7 +1261,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                 prb_list.append(5)
             
                 try:
-                        gramlist.remove(lex_answers[k][0])
+                    gramlist.remove(lex_answers[k][0])
                 except ValueError:
                     print(lex_answers[k][0])
                 # I don't think I need to worry about gramlist1 and gramlist2.
@@ -1290,7 +1290,9 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
             while pick > prb_cumsum[k]:
                 k += 1
             question = resort(qa_entries[k][1], ltrord)
-            answers = qa_entries[k][2].split('_') + qa_entries[k][3].split('_')
+            answers = qa_entries[k][2].split('_') 
+            anslex = qa_entries[k][3].split('_')
+            answers = [answers[ell]+anslex[ell] for ell in range(len(answers))]
             # The question
             endq = False
             print(question)
@@ -1306,9 +1308,9 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                     replylist.append(reply)
             replylist.sort()
             
-            for k in range(len(replylist)):
-                if not replylist[k][-1].isdigit():
-                    replylist[k] += default_suffix
+            for ell in range(len(replylist)):
+                if not replylist[ell][-1].isdigit():
+                    replylist[ell] += default_suffix
             
             # Showing the answers
             print(answers)
