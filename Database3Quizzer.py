@@ -1420,6 +1420,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
     else:
         leges = '_'.join(lexlist)
     
+    # Ensuring 10 or fewer lexica
     numlex = len(lexlist)
     if numlex > 10:
         print('Too many lexica! Try fewer!')
@@ -1437,6 +1438,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                 stop = True
         numlex = len(lexlist)
     
+    # Showing lexica to the user
     print('lexica:')
     k = 0
     for lex in lexlist:
@@ -1444,6 +1446,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         k += 1
     
     # It could be good to do multiple lists at the same time.
+    # Using all words of the specified length for numerical input
     if str(type(list_len)) == "<class 'int'>":
         datalist = []
         for k in range(numlex):
@@ -1453,13 +1456,12 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
             datalist.extend(datalist_k)
         for data in datalist:
             hooklist.append(data[1])
-    
+    # Using a named list in the case of string input
     if str(type(list_len)) == "<class 'str'>":   
         if listname:
             hooklist = []
             for k in range(numlex):
                 hooklist.extend(extract_hook(list_len, lex1))
-    
     # Removing duplicates
     hooklist = list(set(hooklist))
     
@@ -1469,7 +1471,9 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         hookcheck = 'SELECT * FROM quiz_hook_' + leges + ' WHERE word = ?'
         hookcheck = c.execute(hookcheck, (word,))
         hookcheck = hookcheck.fetchall()
+        # Adding in hooks if the word was not already in the hook quiz database
         if len(hookcheck) == 0:
+            # fhooks and bhooks will be lists of the hooks in each lexicon
             fhooks = []
             bhooks = []
             for k in range(numlex):
@@ -1477,53 +1481,34 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                  adddata_k = c.execute(adddata_k, (word,))
                  adddata_k = adddata_k.fetchall()
                  if len(adddata_k) > 0:
-                     fhooks.extend(list(adddata_k[0][9]))
-                     bhooks.extend(list(adddata_k[0][10]))
-                 if k < numlex-1:
-                     fhooks.append('_')
-                     bhooks.append('_')
-            # Now it is time to add the hooks into lists
-            k = 0
+                     fhooks[k] = adddata_k[0][9]
+                     bhooks[k] = adddata_k[0][10]
+            # Creating a string of all hooks and a list of the lexica per hook
+            # Front Hooks
             pos = 0
-            fhook_new = ''
+            fhook_new = list(set(''.join(fhooks)))
+            fhook_new.sort()
+            fhook_new = ''.join(fhook_new)
             fhook_lex_new = []
-            for hk in fhooks:
-                if hk == '_':
-                    k += 1
-                    pos = 0
-                elif pos == len(fhook_new):
-                    fhook_new += hk
-                    fhook_lex_new.insert(pos, str(k))
-                    pos += 1
-                elif hk < fhook_new[pos]:
-                    fhook_new = fhook_new[:pos] + hk + fhook_new[pos:]
-                    fhook_lex_new.insert(pos, str(k))
-                    pos += 1
-                elif hk == fhook_new[pos]:
-                    fhook_lex_new[pos] = fhook_lex_new[pos] + str(k)
-                else:
-                    pos += 1
-            k = 0
+            for k in range(numlex):
+                fhook_list_new[k] = ''
+                for hk in fhook_new:
+                    if hk in fhooks[k]:
+                        fhook_lex_new[pos] += str(k)
+                pos += 1
+            # Back Hooks
             pos = 0
-            bhook_new = ''
+            bhook_new = list(set(''.join(bhooks)))
+            bhook_new.sort()
+            bhook_new = ''.join(bhook_new)
             bhook_lex_new = []
-            for hk in bhooks:
-                if hk == '_':
-                    k += 1
-                    pos = 0
-                elif pos == len(bhook_new):
-                    bhook_new += hk
-                    bhook_lex_new.insert(pos, str(k))
-                    pos += 1
-                elif hk < bhook_new[pos]:
-                    bhook_new = bhook_new[:pos] + hk + bhook_new[pos:]
-                    bhook_lex_new.insert(pos, str(k))
-                    pos += 1
-                elif hk == bhook_new[pos]:
-                    bhook_lex_new[pos] = bhook_lex_new[pos] + str(k)
-                else:
-                    pos += 1
-            # Now do the same for back hooks and commit
+            for k in range(numlex):
+                bhook_list_new[k] = ''
+                for hk in bhook_new:
+                    if hk in bhooks[k]:
+                        bhook_lex_new[pos] += str(k)
+                pos += 1
+            # Turn the hook lex list to a string and commit to the database
             fhook_lex_new = '_'.join(fhook_lex_new)
             bhook_lex_new = '_'.join(bhook_lex_new)
             sql = 'UPDATE quiz_hook_' + leges +\
