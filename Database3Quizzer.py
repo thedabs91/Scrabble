@@ -1388,6 +1388,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
 
 
 # A useful function
+# Creates a list of letters and the numbers corresponding to the correct lexica.
 # There is likely a better solution (re library?)
 def hooksplit(str):
     str = str.upper()
