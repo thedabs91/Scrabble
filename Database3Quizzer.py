@@ -1388,7 +1388,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
 
 
 # A useful function
-# Creates a list of letters and the numbers corresponding to the correct lexica.
+# Creates a list of letters and the numbers corresponding to the correct lexica
 # There is likely a better solution (re library?)
 def hooksplit(str):
     str = str.upper()
@@ -1427,7 +1427,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         lexlist = []
         k = 0
         stop == False
-        while stop = False:
+        while stop == False:
             newlex = input('Lexicon ' + k + ': ')
             k += 1
             if newlex == 'q':
@@ -1481,8 +1481,11 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                  adddata_k = c.execute(adddata_k, (word,))
                  adddata_k = adddata_k.fetchall()
                  if len(adddata_k) > 0:
-                     fhooks[k] = adddata_k[0][9]
-                     bhooks[k] = adddata_k[0][10]
+                     fhooks.append(adddata_k[0][9])
+                     bhooks.append(adddata_k[0][10])
+                 else:
+                     fhooks.append('')
+                     bhooks.append('')
             # Creating a string of all hooks and a list of the lexica per hook
             # Front Hooks
             pos = 0
@@ -1490,9 +1493,9 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
             fhook_new.sort()
             fhook_new = ''.join(fhook_new)
             fhook_lex_new = []
-            for k in range(numlex):
-                fhook_list_new[k] = ''
-                for hk in fhook_new:
+            for hk in fhook_new:
+                fhook_lex_new.append('')
+                for k in range(numlex):
                     if hk in fhooks[k]:
                         fhook_lex_new[pos] += str(k)
                 pos += 1
@@ -1502,23 +1505,22 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
             bhook_new.sort()
             bhook_new = ''.join(bhook_new)
             bhook_lex_new = []
-            for k in range(numlex):
-                bhook_list_new[k] = ''
-                for hk in bhook_new:
+            for hk in bhook_new:
+                bhook_lex_new.append('')
+                for k in range(numlex):
                     if hk in bhooks[k]:
                         bhook_lex_new[pos] += str(k)
                 pos += 1
             # Turn the hook lex list to a string and commit to the database
             fhook_lex_new = '_'.join(fhook_lex_new)
             bhook_lex_new = '_'.join(bhook_lex_new)
-            sql = 'UPDATE quiz_hook_' + leges +\
-                   ''' SET fhook = ?,
-                           bhook = ?,
-                           fhook_lex = ?,
-                           bhook_lex = ?
-                       WHERE word = ?'''
-            c.execute(sql, (fhook_new, bhook_new, fhook_lex_new, bhook_lex_new,\
-                            word))
+            # Adding the entry into the database
+            sql = 'INSERT INTO quiz_hook_' + leges +\
+                   '''(user,word,fhook,bhook,fhook_lex,bhook_lex,num_cor,num_inc,
+                       wt_cor,wt_inc,prob_val)
+                      VALUES(?,?,?,?,?,?,?,?,?,?,?)'''
+            c.execute(sql, (userid, word, fhook_new, bhook_new, fhook_lex_new,\
+                            bhook_lex_new, 0,0,0,0,5))
             conn.commit()
     
     print('You are quizzing!')   
