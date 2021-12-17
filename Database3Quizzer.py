@@ -1585,21 +1585,6 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         print(bhook)
         print(bhook_lex)
         
-        answers = []
-        for ltr in fhook_key2.join([fhook_key1, fhook_key3]):
-            answers.append(ltr + question)
-        for ltr in bhook_key2.join([bhook_key1, bhook_key3]):
-            answers.append(question + ltr)
-        
-        answer_data = []
-        for word in answers:
-            sql = 'SELECT fhook, remfirst, word, remlast, bhook FROM lexicon_' + \
-                  lex1 + ' WHERE word = ?'
-            word_props = c.execute(sql, (word,))
-            word_props = word_props.fetchall()
-            answer_data.append(word_props)
-        for datum in answer_data:
-            print(datum)
         if quiz:
             # Taking and sorting answers
             fhook_alist = hooksplit(fhook_ans)
@@ -1610,32 +1595,35 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
             bhook_leges = bhook_lex.split('_')
             qatt += 1
             # Checking against the key
-            correct = True
-            for ctr in range(fhook_alist):
-                fh1 = list(fhook_alist[ctr][1:])
-                fh1.sort()
-                fh1 = ''.join(fh1)
-                if fhook_alist[ctr][0] != fhook[ctr]:
-                    correct = False
-                    break
-                elif fh1 != fhook_leges[ctr] and\
-                     (fh1 != '' or fhook_leges[ctr] != alllex):
-                    correct = False
-                    break
+            correct = (len(fhook_alist) == len(fhook) and\
+                       len(bhook_alist) == len(bhook))
             if correct:
-                for ctr in range(bhook_alist):
+                for ctr in range(len(fhook_alist)):
+                    fh1 = list(fhook_alist[ctr][1:])
+                    fh1.sort()
+                    fh1 = ''.join(fh1)
+                    if fhook_alist[ctr][0] != fhook[ctr]:
+                         correct = False
+                         break
+                    elif (fh1 != fhook_leges[ctr] and\
+                          (fh1 != '' or fhook_leges[ctr] != alllex)):
+                        correct = False
+                        break
+            if correct:
+                for ctr in range(len(bhook_alist)):
                     bh1 = list(bhook_alist[ctr][1:])
                     bh1.sort()
                     bh1 = ''.join(bh1)
                     if bhook_alist[ctr][0] != bhook[ctr]:
                         correct = False
                         break
-                    elif bh1 != bhook_leges[ctr] and\
-                         (bh1 != '' or bhook_leges[ctr] != alllex):
+                    elif (bh1 != bhook_leges[ctr] and\
+                          (bh1 != '' or bhook_leges[ctr] != alllex)):
                         correct = False
                         break
             
             
+            # Updating the database based on the answer
             if correct:
                 qcor += 1
                 new_cor = qh_entries[k][6] + 1
