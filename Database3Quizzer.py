@@ -167,6 +167,7 @@ def quiz_hook_mlex_db(lexlist):
                   '''(
                          user text NOT NULL,
                          word text NOT NULL,
+                         lex_id text,
                          fhook text,
                          bhook text,
                          fhook_lex text,
@@ -1468,6 +1469,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
     # Adding entries to quiz_hook if necessary.
     # This seems like updating to me
     for word in hooklist:
+        lex_id_k = ''
         hookcheck = 'SELECT * FROM quiz_hook_' + leges + ' WHERE word = ?'
         hookcheck = c.execute(hookcheck, (word,))
         hookcheck = hookcheck.fetchall()
@@ -1481,11 +1483,30 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                  adddata_k = c.execute(adddata_k, (word,))
                  adddata_k = adddata_k.fetchall()
                  if len(adddata_k) > 0:
+                     lex_id_k += str(k)
                      fhooks.append(adddata_k[0][9])
                      bhooks.append(adddata_k[0][10])
                  else:
-                     fhooks.append('')
-                     bhooks.append('')
+                     # In this case, the word was not in lexicon k.
+                     fhook_k = ''
+                     bhook_k = ''
+                     for letr in string.ascii_uppercase:
+                         # Checking for front hooks
+                         adddata_k = 'SELECT * FROM lexicon_' + lexlist[k] +\
+                                     ' WHERE word = ?'
+                         adddata_k = c.execute(adddata_k, (letr+word,))
+                         adddata_k = adddata_k.fetchall()
+                         if len(adddata_k) > 0:
+                             fhook_k += letr
+                         # Checking for back hooks
+                         adddata_k = 'SELECT * FROM lexicon_' + lexlist[k] +\
+                                     ' WHERE word = ?'
+                         adddata_k = c.execute(adddata_k, (word+letr,))
+                         adddata_k = adddata_k.fetchall()
+                         if len(adddata_k) > 0:
+                             bhook_k += letr
+                     fhooks.append(fhook_k)
+                     bhooks.append(bhook_k)
             # Creating a string of all hooks and a list of the lexica per hook
             # Front Hooks
             pos = 0
@@ -1516,11 +1537,11 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
             bhook_lex_new = '_'.join(bhook_lex_new)
             # Adding the entry into the database
             sql = 'INSERT INTO quiz_hook_' + leges +\
-                   '''(user,word,fhook,bhook,fhook_lex,bhook_lex,num_cor,num_inc,
-                       wt_cor,wt_inc,prob_val)
-                      VALUES(?,?,?,?,?,?,?,?,?,?,?)'''
-            c.execute(sql, (userid, word, fhook_new, bhook_new, fhook_lex_new,\
-                            bhook_lex_new, 0,0,0,0,5))
+                   '''(user,word,lex_id,fhook,bhook,fhook_lex,bhook_lex,
+                       num_cor,num_inc,wt_cor,wt_inc,prob_val)
+                      VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'''
+            c.execute(sql, (userid, word, lex_id_k, fhook_new, bhook_new,\
+                            fhook_lex_new, bhook_lex_new, 0,0,0,0,5))
             conn.commit()
     
     print('You are quizzing!')   
@@ -1544,7 +1565,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
     k = 0
     prb_list = []
     for k in range(len(qh_entries)):
-        prb_list.append(qh_entries[k][10])
+        prb_list.append(qh_entries[k][11])
     
     # One last constant: the alllex string
     alllex = ''
@@ -1563,21 +1584,23 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         while pick > prb_cumsum[k]:
             k += 1
         question = qh_entries[k][1]
-        fhook = qh_entries[k][2]
-        bhook = qh_entries[k][3]
-        fhook_lex = qh_entries[k][4]
-        bhook_lex = qh_entries[k][5]
-        if lex_subset:
-            fhook_key2 = ''
-            bhook_key2 = ''
+        lex_id = qh_entries[k][2]
+        fhook = qh_entries[k][3]
+        bhook = qh_entries[k][4]
+        fhook_lex = qh_entries[k][5]
+        bhook_lex = qh_entries[k][6]
+        
         endq = False
         print(question)
+        lex_id_ans = input('Lexica of above (increasing numbers, no spaces): ')
+        lex_id_ans = lex_id_ans.upper()
         fhook_ans = input('Front Hooks?: ')
         fhook_ans = fhook_ans.upper()
         bhook_ans = input('Back Hooks?: ')
         bhook_ans = bhook_ans.upper()
-        if fhook_ans == 'Q' and bhook_ans == 'Q':
+        if lex_id_ans == 'Q':
             quiz = False
+        print('Lexica of base word: ' + lex_id)
         print('Front Hooks:')
         print(fhook)
         print(fhook_lex)
@@ -1585,105 +1608,108 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         print(bhook)
         print(bhook_lex)
         
-        if quiz:
-            # Taking and sorting answers
-            fhook_alist = hooksplit(fhook_ans)
-            fhook_alist.sort()
-            fhook_leges = fhook_lex.split('_')
-            bhook_alist = hooksplit(bhook_ans)
-            bhook_alist.sort()
-            bhook_leges = bhook_lex.split('_')
-            qatt += 1
-            # Checking against the key
-            correct = (len(fhook_alist) == len(fhook) and\
-                       len(bhook_alist) == len(bhook))
-            if correct:
-                for ctr in range(len(fhook_alist)):
-                    fh1 = list(fhook_alist[ctr][1:])
-                    fh1.sort()
-                    fh1 = ''.join(fh1)
-                    if fhook_alist[ctr][0] != fhook[ctr]:
-                         correct = False
-                         break
-                    elif (fh1 != fhook_leges[ctr] and\
-                          (fh1 != '' or fhook_leges[ctr] != alllex)):
-                        correct = False
-                        break
-            if correct:
-                for ctr in range(len(bhook_alist)):
-                    bh1 = list(bhook_alist[ctr][1:])
-                    bh1.sort()
-                    bh1 = ''.join(bh1)
-                    if bhook_alist[ctr][0] != bhook[ctr]:
-                        correct = False
-                        break
-                    elif (bh1 != bhook_leges[ctr] and\
-                          (bh1 != '' or bhook_leges[ctr] != alllex)):
-                        correct = False
-                        break
-            
-            
-            # Updating the database based on the answer
-            if correct:
-                qcor += 1
-                new_cor = qh_entries[k][6] + 1
-                new_inc = qh_entries[k][7]
-                natt = new_cor + new_inc
-                # This next line could be changed
-                # To allow for a user specific number
-                # Controls the weighting of more recent responses
-                new_wt_cor = qh_entries[k][8] + multiplier
-                new_wt_cor *= natt/(natt+multiplier - 1)
-                new_wt_inc = qh_entries[k][9]*natt/(natt+multiplier - 1)
-                if new_wt_inc >= new_wt_cor:
-                    new_prob = 1+new_wt_inc-new_wt_cor
-                else:
-                    new_prob = 1/(1+new_wt_cor-new_wt_inc)
-                qh_entries[k] = (qh_entries[k][0], qh_entries[k][1],\
-                                 qh_entries[k][2], qh_entries[k][3],\
-                                 qh_entries[k][4], qh_entries[k][5],\
-                                 new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob) 
+        # Checking the user's work
+        # Taking and sorting answers
+        fhook_alist = hooksplit(fhook_ans)
+        fhook_alist.sort()
+        fhook_leges = fhook_lex.split('_')
+        bhook_alist = hooksplit(bhook_ans)
+        bhook_alist.sort()
+        bhook_leges = bhook_lex.split('_')
+        qatt += 1
+        # Checking against the key
+        correct = (len(fhook_alist) == len(fhook) and\
+                   len(bhook_alist) == len(bhook) and\
+                   (lex_id_ans == lex_id or not quiz))
+        if correct:
+            for ctr in range(len(fhook_alist)):
+                fh1 = list(fhook_alist[ctr][1:])
+                fh1.sort()
+                fh1 = ''.join(fh1)
+                if fhook_alist[ctr][0] != fhook[ctr]:
+                     correct = False
+                     break
+                elif (fh1 != fhook_leges[ctr] and\
+                      (fh1 != '' or fhook_leges[ctr] != alllex)):
+                    correct = False
+                    break
+        if correct:
+            for ctr in range(len(bhook_alist)):
+                bh1 = list(bhook_alist[ctr][1:])
+                bh1.sort()
+                bh1 = ''.join(bh1)
+                if bhook_alist[ctr][0] != bhook[ctr]:
+                    correct = False
+                    break
+                elif (bh1 != bhook_leges[ctr] and\
+                      (bh1 != '' or bhook_leges[ctr] != alllex)):
+                    correct = False
+                    break
+        
+        
+        # Updating the database based on the answer
+        if correct:
+            qcor += 1
+            new_cor = qh_entries[k][7] + 1
+            new_inc = qh_entries[k][8]
+            natt = new_cor + new_inc
+            # This next line could be changed
+            # To allow for a user specific number
+            # Controls the weighting of more recent responses
+            new_wt_cor = qh_entries[k][9] + multiplier
+            new_wt_cor *= natt/(natt+multiplier - 1)
+            new_wt_inc = qh_entries[k][10]*natt/(natt+multiplier - 1)
+            if new_wt_inc >= new_wt_cor:
+                new_prob = 1+new_wt_inc-new_wt_cor
             else:
-                new_cor = qh_entries[k][6]
-                new_inc = qh_entries[k][7] + 1
-                natt = new_cor + new_inc
-                # This next line could be changed
-                # To allow for a user specific number
-                new_wt_inc = qh_entries[k][9] + multiplier
-                new_wt_inc *= natt/(natt+multiplier-1)
-                new_wt_cor = qh_entries[k][8]*natt/(natt+multiplier-1)
-                if new_wt_inc >= new_wt_cor:
-                    new_prob = 1+new_wt_inc-new_wt_cor
-                else:
-                    new_prob = 1/(1+new_wt_cor-new_wt_inc)
-                qh_entries[k] = (qh_entries[k][0], qh_entries[k][1],\
-                                 qh_entries[k][2], qh_entries[k][3],\
-                                 qh_entries[k][4], qh_entries[k][5],\
-                                 new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob)
-            print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
-                  str(round(new_prob,2)))
-            # Updating the database
-            sql = 'UPDATE quiz_hook_' + leges +\
-                  ''' SET num_cor = ?,
-                          num_inc = ?,
-                          wt_cor = ?,
-                          wt_inc = ?,
-                          prob_val = ?
-                      WHERE word = ?'''
-            c.execute(sql, (qh_entries[k][6],\
-                            qh_entries[k][7],\
-                            qh_entries[k][8],\
-                            qh_entries[k][9],\
-                            qh_entries[k][10],\
-                            qh_entries[k][1]))
-            conn.commit()
-            # Updating probabilities
-            prb_list[k] = qh_entries[k][10]
+                new_prob = 1/(1+new_wt_cor-new_wt_inc)
+            qh_entries[k] = (qh_entries[k][0], qh_entries[k][1],\
+                             qh_entries[k][3], qh_entries[k][4],\
+                             qh_entries[k][5], qh_entries[k][6],\
+                             new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob) 
+        else:
+            new_cor = qh_entries[k][7]
+            new_inc = qh_entries[k][8] + 1
+            natt = new_cor + new_inc
+            # This next line could be changed
+            # To allow for a user specific number
+            new_wt_inc = qh_entries[k][10] + multiplier
+            new_wt_inc *= natt/(natt+multiplier-1)
+            new_wt_cor = qh_entries[k][9]*natt/(natt+multiplier-1)
+            if new_wt_inc >= new_wt_cor:
+                new_prob = 1+new_wt_inc-new_wt_cor
+            else:
+                new_prob = 1/(1+new_wt_cor-new_wt_inc)
+            qh_entries[k] = (qh_entries[k][0], qh_entries[k][1],\
+                             qh_entries[k][3], qh_entries[k][4],\
+                             qh_entries[k][5], qh_entries[k][6],\
+                             new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob)
+        
+        print(str(new_cor) + '/' + str(new_cor+new_inc) + ' ' +\
+              str(round(new_prob,2)))
+        # Updating the database
+        sql = 'UPDATE quiz_hook_' + leges +\
+              ''' SET num_cor = ?,
+                      num_inc = ?,
+                      wt_cor = ?,
+                      wt_inc = ?,
+                      prob_val = ?
+                  WHERE word = ?'''
+        c.execute(sql, (qh_entries[k][6],\
+                        qh_entries[k][7],\
+                        qh_entries[k][8],\
+                        qh_entries[k][9],\
+                        qh_entries[k][10],\
+                        qh_entries[k][1]))
+        conn.commit()
+        # Updating probabilities
+        prb_list[k] = qh_entries[k][10]
     
     # Displaying statistics
-    print('Questions Correct:   ' + str(qcor) + '\n')
-    print('Questions Attempted: ' + str(qatt) + '\n')
-    print('Thanks for quizzing!')
+    if not quiz:
+        print('Questions Correct:   ' + str(qcor) + '\n')
+        print('Questions Attempted: ' + str(qatt) + '\n')
+        print('Thanks for quizzing!')
 
 
 
