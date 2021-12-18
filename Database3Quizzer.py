@@ -1664,7 +1664,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                 new_prob = 1+new_wt_inc-new_wt_cor
             else:
                 new_prob = 1/(1+new_wt_cor-new_wt_inc)
-            qh_entries[k] = (qh_entries[k][0], qh_entries[k][1],\
+            qh_entries[k] = (qh_entries[k][0], qh_entries[k][1], qh_entries[k][2],\
                              qh_entries[k][3], qh_entries[k][4],\
                              qh_entries[k][5], qh_entries[k][6],\
                              new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob) 
@@ -1681,7 +1681,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                 new_prob = 1+new_wt_inc-new_wt_cor
             else:
                 new_prob = 1/(1+new_wt_cor-new_wt_inc)
-            qh_entries[k] = (qh_entries[k][0], qh_entries[k][1],\
+            qh_entries[k] = (qh_entries[k][0], qh_entries[k][1], qh_entries[k][2],\
                              qh_entries[k][3], qh_entries[k][4],\
                              qh_entries[k][5], qh_entries[k][6],\
                              new_cor, new_inc, new_wt_cor, new_wt_inc, new_prob)
@@ -1696,11 +1696,11 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                       wt_inc = ?,
                       prob_val = ?
                   WHERE word = ?'''
-        c.execute(sql, (qh_entries[k][6],\
-                        qh_entries[k][7],\
+        c.execute(sql, (qh_entries[k][7],\
                         qh_entries[k][8],\
                         qh_entries[k][9],\
                         qh_entries[k][10],\
+                        qh_entries[k][11],\
                         qh_entries[k][1]))
         conn.commit()
         # Updating probabilities
