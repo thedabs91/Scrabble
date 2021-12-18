@@ -1600,6 +1600,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         bhook_ans = bhook_ans.upper()
         if lex_id_ans == 'Q':
             quiz = False
+        print('\n')
         print('Lexica of base word: ' + lex_id)
         print('Front Hooks:')
         print(fhook)
@@ -1780,10 +1781,7 @@ def login_fxn():
                     else:
                         mlex_new = mlex_new.split(',')
                         mlex_new = [lex.strip() for lex in mlex_new]
-                        lexlist_new = ''
-                        for lex in mlex_new:
-                            lexlist_new += lex + '_'
-                        lexlist_new = lexlist_new.rstrip('_')
+                        lexlist_new = '_'.join(mlex_new)
                     sql = '''UPDATE users SET lexicon = ?, lex1 = ?, lex2 = ?,
                              lexlist = ?, WHERE user = ?'''
                     c.execute(sql, (lexicon_new, lex1_new, lex2_new, lexlist, uname_global))
