@@ -1321,7 +1321,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
             
             # Showing the answers
             for key in ans_dic:
-                print(key + ': ' + ans_dic[key]
+                print(key + ': ' + ans_dic[key])
             answer_data = []
             # I do not show data about the answers here
             # ... for now.
