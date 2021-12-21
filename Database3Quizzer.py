@@ -1293,6 +1293,12 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
             question = resort(qa_entries[k][1], ltrord)
             answers = qa_entries[k][2].split('_') 
             anslex = qa_entries[k][3].split('_')
+                        ans_dic = {}
+            for ell in range(len(answers)):
+                try:
+                    ans_dic[anslex[ell]].append(answers[ell])
+                except KeyError:
+                    ans_dic[anslex[ell]] = [answers[ell]]
             answers = [answers[ell]+anslex[ell] for ell in range(len(answers))]
             # The question
             endq = False
@@ -1314,7 +1320,8 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                     replylist[ell] += default_suffix
             
             # Showing the answers
-            print(answers)
+            for key in ans_dic:
+                print(key + ': ' + ans_dic[key]
             answer_data = []
             # I do not show data about the answers here
             # ... for now.
