@@ -1551,7 +1551,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                             fhook_lex_new, bhook_lex_new, 0,0,0,0,5))
             conn.commit()
     
-    print('You are quizzing!')   
+    print('You are quizzing!\n')   
     
     # Using the user specified letter order and multiplier
     userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
@@ -1607,16 +1607,8 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         bhook_ans = bhook_ans.upper()
         if lex_id_ans == 'Q':
             quiz = False
-        print('\n')
-        print('Lexica of base word: ' + lex_id)
-        print('Front Hooks:')
-        print(fhook)
-        print(fhook_lex)
-        print('Back Hooks:')
-        print(bhook)
-        print(bhook_lex)
+        print('')
         
-        # Checking the user's work
         # Taking and sorting answers
         fhook_alist = hooksplit(fhook_ans)
         fhook_alist.sort()
@@ -1624,35 +1616,39 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         bhook_alist = hooksplit(bhook_ans)
         bhook_alist.sort()
         bhook_leges = bhook_lex.split('_')
+        
+        fhook_acheck = ''.join(fhook_alist)
+        fhook_acheck = fhook_acheck.replace(alllex, '')
+        bhook_acheck = ''.join(bhook_alist)
+        bhook_acheck = bhook_acheck.replace(alllex, '')
+        # This code could be replaced if I change how to save the answers here
+        fhook_corans = ''
+        for k in range(len(fhook)):
+            fhook_corans += fhook[k]
+            if fhook_leges[k] != alllex:
+                fhook_corans += fhook_leges[k]
+        bhook_corans = ''
+        for k in range(len(bhook)):
+            bhook_corans += bhook[k]
+            if bhook_leges[k] != alllex:
+                bhook_corans += bhook_leges[k]
+        
+        print('Lexica of base word: ' + lex_id)
+        print('Front Hooks')
+        print('-----------')
+        print('You: ' + fhook_acheck)
+        print('Key: ' + fhook_corans + '\n')
+        print('Back Hooks')
+        print('----------')
+        print('You: ' + bhook_acheck)
+        print('Key: ' + bhook_corans + '\n')
+        
+        # Checking the user's work
         qatt += 1
         # Checking against the key
-        correct = (len(fhook_alist) == len(fhook) and\
-                   len(bhook_alist) == len(bhook) and\
+        correct = (fhook_acheck == fhook_corans and\
+                   bhook_acheck == bhook_corans and\
                    (lex_id_ans == lex_id or not quiz))
-        if correct:
-            for ctr in range(len(fhook_alist)):
-                fh1 = list(fhook_alist[ctr][1:])
-                fh1.sort()
-                fh1 = ''.join(fh1)
-                if fhook_alist[ctr][0] != fhook[ctr]:
-                     correct = False
-                     break
-                elif (fh1 != fhook_leges[ctr] and\
-                      (fh1 != '' or fhook_leges[ctr] != alllex)):
-                    correct = False
-                    break
-        if correct:
-            for ctr in range(len(bhook_alist)):
-                bh1 = list(bhook_alist[ctr][1:])
-                bh1.sort()
-                bh1 = ''.join(bh1)
-                if bhook_alist[ctr][0] != bhook[ctr]:
-                    correct = False
-                    break
-                elif (bh1 != bhook_leges[ctr] and\
-                      (bh1 != '' or bhook_leges[ctr] != alllex)):
-                    correct = False
-                    break
         
         
         # Updating the database based on the answer
