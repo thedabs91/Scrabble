@@ -3,3 +3,19 @@
 
 import Database2Lister as dl
 
+# Now I will add a few lists for examples
+# This is one way to add words sequentially
+add_list = True
+
+if add_list:
+    DeregBingo_nwl18 = dl.search_subgram('DEREGULATIONS', 7, 8, lexicon = 'nwl18')
+    DeregNine_nwl18 = dl.search_subgram('DEREGULATIONS', 9, 9, lexicon = 'nwl18')
+    HighFive_nwl18 = dl.search_list(['length = 5', 'score > 10'], lexicon = 'nwl18')
+    dl.save_entries(DeregBingo_nwl18, 'DeregBingo', lexicon = 'nwl18')
+    dl.save_entries(DeregNine_nwl18, 'DeregNine', lexicon = 'nwl18')
+    dl.save_entries(HighFive_nwl18, 'HighFive', lexicon = 'nwl18')
+    conn.commit()
+
+# I like starting with 2-4 letter words (in order of length) and
+# ... deregulations bingos. XJZQ words and vowel dumps are also useful
+    
