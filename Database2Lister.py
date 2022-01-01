@@ -268,16 +268,3 @@ def save_grams(gramlist, name, lexicon):
         c.execute(add_sql, (name, gram))
     conn.commit()
 
-
-
-# Now I will add a few lists for examples
-add_list = False
-
-if add_list:
-    DeregBingo_nwl18 = search_subgram('DEREGULATIONS', 7, 8, lexicon = 'nwl18')
-    DeregNine_nwl18 = search_subgram('DEREGULATIONS', 9, 9, lexicon = 'nwl18')
-    HighFive_nwl18 = search_list(['length = 5', 'score > 10'], lexicon = 'nwl18')
-    save_entries(DeregBingo_nwl18, 'DeregBingo', lexicon = 'nwl18')
-    save_entries(DeregNine_nwl18, 'DeregNine', lexicon = 'nwl18')
-    save_entries(HighFive_nwl18, 'HighFive', lexicon = 'nwl18')
-    conn.commit()
