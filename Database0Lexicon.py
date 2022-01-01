@@ -247,6 +247,8 @@ def lex_db(lexicon):
     x = 1
     for line in file:
         line = line.rstrip('\n')
+        if line.strip(' ') == '':
+            continue
         line = line.split(',')
         length = len(line[0])
         nv = line[0].count('A') + line[0].count('E') + line[0].count('I') + \
