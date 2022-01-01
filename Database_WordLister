@@ -1,0 +1,5 @@
+# This is where the wordlists can be created.
+# It can be helpful to save as a guide to wordlists that have been created.
+
+import Database2Lister as dl
+
