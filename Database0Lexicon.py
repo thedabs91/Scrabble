@@ -77,6 +77,12 @@ def lex_table(lexicon):
     
     if conn is not None:
         create_table(conn, lexicon_table)
+        conn.commit()
+
+def lex_table_delete(lexicon):
+    c = conn.cursor()
+    c.execute('DROP TABLE IF EXISTS lexicon_'+lexicon)
+    conn.commit()
 
 
 
@@ -270,5 +276,6 @@ def lex_db(lexicon):
         x += 1
     print(x)
     file.close()
+    conn.commit()
 
 # This seems to have worked!
