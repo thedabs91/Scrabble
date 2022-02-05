@@ -76,23 +76,6 @@ def quiz_anag_db(lexicon):
     create_table(conn, sql_create)
     conn.commit()
 
-def quiz_anag_bilex_db(lex1, lex2):
-    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_anag_' + lex1+'_'+lex2 +\
-                 '''(   
-                        user text NOT NULL,
-                        gram text NOT NULL,
-                        answers1 text,
-                        answers2 text,
-                        num_cor integer,
-                        num_inc integer,
-                        wt_cor double,
-                        wt_inc double,
-                        prob_val double,
-                        FOREIGN KEY (user) REFERENCES users (user)
-                    );'''
-    create_table(conn, sql_create)
-    conn.commit()
-
 def quiz_anag_mlex_db(lexlist):
     if len(lexlist) == 1:
         quiz_anag_db(lexlist[0])
@@ -129,25 +112,6 @@ def quiz_hook_db(lexicon):
                          word text NOT NULL,
                          fhook text,
                          bhook text,
-                         num_cor integer,
-                         num_inc integer,
-                         wt_cor double,
-                         wt_inc double,
-                         prob_val double,
-                         FOREIGN KEY (user) REFERENCES users (user)
-                     );'''
-    create_table(conn, sql_create)
-    conn.commit()
-
-def quiz_hook_bilex_db(lex1, lex2):
-    sql_create = 'CREATE TABLE IF NOT EXISTS quiz_hook_' + lex1+'_'+lex2 +\
-                  '''(
-                         user text NOT NULL,
-                         word text NOT NULL,
-                         fhook1 text,
-                         fhook2 text,
-                         bhook1 text,
-                         bhook2 text,
                          num_cor integer,
                          num_inc integer,
                          wt_cor double,
@@ -659,7 +623,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
     print('lexlist = ')
     k = 0
     for lex in lexlist:
-        print(k + ': ' + lex)
+        print(str(k) + ': ' + lex)
         k += 1
     
     # It is useful to create a string of lexica for use
@@ -801,7 +765,7 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
             question = resort(qa_entries[k][1], ltrord)
             answers = qa_entries[k][2].split('_') 
             anslex = qa_entries[k][3].split('_')
-                        ans_dic = {}
+            ans_dic = {}
             for ell in range(len(answers)):
                 try:
                     ans_dic[anslex[ell]].append(answers[ell])
@@ -1246,14 +1210,10 @@ def login_fxn():
             # Editing function defaults?
             global quiz_hook
             global quiz_anag
-            global quiz_hook_bilex
-            global quiz_anag_bilex
             global quiz_hook_mlex
             global quiz_anag_mlex
             quiz_hook = partial(quiz_hook, userid = uname_global)
             quiz_anag = partial(quiz_anag, userid = uname_global)
-            quiz_hook_bilex = partial(quiz_hook_bilex, userid = uname_global)
-            quiz_anag_bilex = partial(quiz_anag_bilex, userid = uname_global)
             quiz_hook_mlex = partial(quiz_hook_mlex, userid = uname_global)
             quiz_anag_mlex = partial(quiz_anag_mlex, userid = uname_global)
             usrupd_code = input('Would you like to update defaults (y/n)?: ')
