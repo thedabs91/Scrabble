@@ -29,9 +29,12 @@ Steps:
       using the following code:
     
     >>> import Database1Users as d1
-    >>> d1.create_user('username', ['ltrorder', 'lexicon', 'lex1', 'lex2'])
+    >>> d1.create_user('username', 'multiplier',\ 
+            ['ltrorder', 'lexicon', 'lexicon1', 'lexlist'])
     
     Here, `username` should be replaced with the username that you wish to use.
+    The brackets indicate that all arguments after the first are optional; they
+      should not be typed.
     The optional second argument is the order you want letters to show in
       quizzes. The default is alphabetical.
     The optional third through fifth arguments are lexica to use for quizzes.
