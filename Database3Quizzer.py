@@ -896,7 +896,8 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         usr_lex = c.execute(sql, (userid,))
         usr_lex = usr_lex.fetchall()
         leges = usr_lex[0][0]
-        lexlist = leges.split()
+        leges = leges.strip()
+        lexlist = leges.split('_')
     else:
         leges = '_'.join(lexlist)
     
@@ -941,7 +942,7 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
         if listname:
             hooklist = []
             for k in range(numlex):
-                hooklist.extend(extract_hook(list_len, lex1))
+                hooklist.extend(extract_hook(list_len, lexlist[k]))
     # Removing duplicates
     hooklist = list(set(hooklist))
     
