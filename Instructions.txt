@@ -1,6 +1,6 @@
 Steps:
  1) Save the ".py" files a folder somewhere on your computer to, and save any
-      word lists to create dictionaries in "Words".
+      text files of words in dictionaries in "Words".
  2) Open python in the folder selected in step 1 (original folder, not "Words").
  3) Put those filenames in the appropriate place in "WordListUpdater.py" to
       create the word list that you need.
@@ -28,8 +28,8 @@ Steps:
  9) In python, import "Database1Users.py" in python and create your user account
       using the following code:
     
-    >>> import Database1Users as d1
-    >>> d1.create_user('username', 'multiplier',\ 
+    >>> import Database1Users as du
+    >>> du.create_user('username', 'multiplier',\ 
             ['ltrorder', 'lexicon', 'lexicon1', 'lexlist'])
     
     Here, `username` should be replaced with the username that you wish to use.
