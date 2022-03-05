@@ -29,18 +29,22 @@ Steps:
       using the following code:
     
     >>> import Database1Users as du
-    >>> du.create_user('username', 'multiplier',\ 
-            ['ltrorder', 'lexicon', 'lexicon1', 'lexlist'])
+    >>> du.create_user('username', ['initvalue', 'multiplier',\ 
+            'ltrorder', 'lexicon', 'lexicon1', 'lexlist'])
     
     Here, `username` should be replaced with the username that you wish to use.
     The brackets indicate that all arguments after the first are optional; they
       should not be typed.
-    The optional second argument is the order you want letters to show in
+    The optional second and third arguments are an integer and a real number.
+      The second, 'initvalue', is the initial value of questions you have not
+      seen. The default is 8. The third, 'multiplier', is the additional weight
+      of more recent responses. The default value is 1.2.
+    The optional fourth argument is the order you want letters to show in
       quizzes. The default is alphabetical.
-    The optional third through fifth arguments are lexica to use for quizzes.
-    Here, `lexicon` is the default lexicon for unilexical quizzes, and `lex1`
-      and `lex2` are the lexica to be used for bilexical quizzes. If one lexicon
-      is a subset of the other, the larger lexicon should be treated as `lex1`.
+    The optional fifth through seventh arguments are lexica to use for quizzes.
+    Here, `lexicon` is the default lexicon for unilexical quizzes, `lexicon1`
+      is an alternate default for unilexical quizzes. Lastly, 'lexlist' is the
+      list of lexica for multilexical quizzes.
     
 10) Now that you have created a username, you can use quizzes.
 11) I will now discuss "Database2Lister.py". This file could actually have been
