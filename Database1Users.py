@@ -1,4 +1,5 @@
 import sqlite3
+import string
 
 # Writing necessary functions
 
@@ -36,7 +37,8 @@ database = "Scrabble_Database.db"
 sql_create_users_table = """ CREATE TABLE IF NOT EXISTS users (
                                  user text PRIMARY KEY,
                                  letterorder text NOT NULL,
-                                 multiplier integer NOT NULL,
+                                 initvalue integer NOT NULL,
+                                 multiplier real NOT NULL,
                                  lexicon text,
                                  lexicon1 text,
                                  lexlist text
@@ -49,11 +51,27 @@ else:
     print('Error! Cannot create database connection.')
 
 
-def create_user(username, ltrorder, multiplier, lexicon = None,\
-                lexicon1 = None, lexlist = None):
+def create_user(username, initvalue = 8, multiplier = 1.2,\
+                ltrorder = string.ascii_uppercase,\
+                lexicon = None, lexicon1 = None, lexlist = None):
     """
     Creating a new user
     """
+    
+    checkltrorder = True
+    while checkltrorder:
+        ltrorder = ltrorder.upper()
+        ltrorder_check = [ltr for ltr in ltrorder]
+        ltrorder_check.sort()
+        ltrorder_check = ''.join(ltrorder_check)
+        if ltrorder_check != string.ascii_uppercase:
+            print('Letter order invalid, please retry or type "D" for default')
+            ltrorder = input(': ')
+            if ltrorder.upper() == 'D':
+                ltrorder = string.ascii_uppercase()
+                checkltrorder = False
+        else:
+            checkltrorder = False
     
     if lexlist != None:
         lexlist = '_'.join(lexlist)
