@@ -45,7 +45,8 @@ list_new.sort()
 # Writing to a file
 words_new = file.open('Words/UpdatedWordList', 'w')
 for word in list_new:
-  words_new.write(word + '\n\r')
+  if word.strip(' ') != '':
+    words_new.write(word + '\n\r')
 
 # I think this is it.
 
