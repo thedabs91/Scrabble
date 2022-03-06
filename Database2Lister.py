@@ -169,7 +169,7 @@ def search_list(searchlist, lexicon):
     search_string = ''
     for k in range(len(searchlist)):
         if search_names[k] in ('length', 'score', 'vowels', 'jqxz', 'threeplus',\
-                               'remfirst', 'remlist', 'fhook', 'bhook',\
+                               'remfirst', 'remlast', 'fhook', 'bhook',\
                                'nrack', 'nrack_adj'):
             if k==0:
                 search_string += searchlist[k]
