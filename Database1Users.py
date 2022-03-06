@@ -51,8 +51,8 @@ else:
     print('Error! Cannot create database connection.')
 
 
-def create_user(username, initvalue = 8, multiplier = 1.2,\
-                ltrorder = string.ascii_uppercase,\
+def create_user(username, ltrorder = string.ascii_uppercase,\
+                initvalue = 8, multiplier = 1.2,\
                 lexicon = None, lexicon1 = None, lexlist = None):
     """
     Creating a new user
@@ -76,11 +76,12 @@ def create_user(username, initvalue = 8, multiplier = 1.2,\
     if lexlist != None:
         lexlist = '_'.join(lexlist)
     
-    sql = ''' INSERT INTO users(user, letterorder, multiplier,\
+    sql = ''' INSERT INTO users(user, letterorder, multiplier, initvalue,
                                 lexicon, lexicon1, lexlist)
-              VALUES(?,?,?,?,?,?) '''
+              VALUES(?,?,?,?,?,?,?) '''
     cur = conn.cursor()
-    userrow = (username, ltrorder, multiplier, lexicon, lexicon1, lexlist)
+    userrow = (username, ltrorder, multiplier, initvalue,\
+               lexicon, lexicon1, lexlist)
     cur.execute(sql, userrow)
     conn.commit()
     return(cur.lastrowid)
