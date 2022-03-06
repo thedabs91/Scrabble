@@ -63,14 +63,35 @@ Steps:
     search_subgram - searches for words found within a string of letters of a
                        user-specified length.
     search_list - a function that can search for words with specified
-                    characteristics.
+                    characteristics. Possible specifications:
+                  'length <>= ?'   :  Specify the length
+                  'score <>= ?'    :  Specify score of tiles (ignores needed
+                                        blanks)
+                  'vowels <>= ?'   :  Specify number of vowels
+                  'jqxz <>= ?'     :  Specify total of Js, Qs, Xs, and Zs.
+                  'threeplus <>= ?':  Specify number of tiles worth at least
+                                        three points
+                  'remfirst = 0/1' :  Specify if the first letter can be removed
+                                        to still form a valid word
+                  'remlist = 0/1'  :  Specify if the last letter can be removed
+                                        to still form a valid word
+                  'fhook'          :  Not sure how this can be specified
+                  'bhook'          :  Not sure how this can be specified
+                  'nrack <>= ?'    :  Specify the number of racks, ignoring blanks
+                  'nrack_adj <>= ?':  Specify the number of racks, with 2 blanks
+                  
     search_input - I am unsure if this works now.
     
     save_entries - saves lists of acceptable words to the gram database. Very
                      useful to use after a search from "search_list".
     save_grams - saves lists of grams
-    
-12) Now I discuss quizzing with "Database3Quizzer.py". The first step is the
+
+12) When creating lists to study, it is good to save the lists you would be
+      interested in in a different file, which I call "Database_WordLister".
+      Example syntax and some lists I like are found in the file with this
+      name in this github repo.
+
+13) Now I discuss quizzing with "Database3Quizzer.py". The first step is the
       login. You do not need to login for quizzes, but if you do not, you will
       need to specify your username and lexica for each quiz individually,
       which is not recommended, and instructions will not be provided.
@@ -80,25 +101,25 @@ Steps:
       login after loading, use
     >>> dq.uname_global = dq.login_fxn()
 
-13) The next step is create a databases with the lexica and quiz types that
+14) The next step is create a databases with the lexica and quiz types that
       you want.
     
     To create a anagram quiz with a lexicon or lexica, use one of the following
     >>> dq.quiz_anag_db('lexYYYY')
-    >>> dq.quiz_anag_bilex_db('lex1YYYY', 'lex2YYYY')
+    >>> dq.quiz_anag_mlex_db(['lex1YYYY','lex2YYYY',...,'lexnYYYY'])
     
     For hook quizzes, use one of the following:
     >>> dq.quiz_hook_db('lexYYYY')
-    >>> dq.quiz_hook_bilex_db('lex1YYYY','lex2YYYY')
+    >>> dq.quiz_hook_mlex_db(['lex1YYYY','lex2YYYY',...,'lexnYYYY'])
     
-14) At this point you can quiz. If you had saved wordlists in step 11, you can
+15) At this point you can quiz. If you had saved wordlists in step 11, you can
       use the name of the wordlist in one of the following:
       
     >>> dq.quiz_anag('wordlist')
-    >>> dq.quiz_anag_bilex('wordlist')
+    >>> dq.quiz_anag_mlex('wordlist')
     >>> dq.quiz_hook('wordlist')
-    >>> dq.quiz_hook_bilex('wordlist')
+    >>> dq.quiz_hook_mlex('wordlist')
     
-    For hook quizzes, you can also specify a length, and words will be selected
-      from all words of that length.
+    For hook quizzes, you can also specify an integer length, and words will be
+      selected from all words of that length in the specified lexicon/lexica.
     
