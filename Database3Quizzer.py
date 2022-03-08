@@ -223,7 +223,8 @@ def quiz_anag(gramlist, userid = None, lexicon = None, listname = True):
     userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
     userdata = userdata.fetchall()
     ltrord = userdata[0][1]
-    multiplier = userdata[0][2]
+    initvalue = userdata[0][2]
+    multiplier = userdata[0][3]
     
     k = 0
     # I would like to do this without a 'for' loop.
@@ -268,8 +269,8 @@ def quiz_anag(gramlist, userid = None, lexicon = None, listname = True):
                 sql = 'INSERT INTO quiz_anag_' + lexicon +\
                       '''(user,gram,answers,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                          VALUES(?,?,?,?,?,?,?,?)'''
-                c.execute(sql, (userid, gramprev, answers, 0,0,0,0,5))
-                qa_entries.append((userid, gramprev, answers, 0,0,0,0,5))
+                c.execute(sql, (userid, gramprev, answers, 0,0,0,0, initvalue))
+                qa_entries.append((userid, gramprev, answers, 0,0,0,0, initvalue))
                 prb_list.append(5)
             if gram != gramprev:
                 answers = lex_entries[k][1]
@@ -284,8 +285,8 @@ def quiz_anag(gramlist, userid = None, lexicon = None, listname = True):
         sql = 'INSERT INTO quiz_anag_' + lexicon +\
               '''(user,gram,answers,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                  VALUES(?,?,?,?,?,?,?,?)'''
-        c.execute(sql, (userid, gramprev, answers, 0,0,0,0,5))
-        qa_entries.append((userid, gramprev, answers, 0,0,0,0,5))
+        c.execute(sql, (userid, gramprev, answers, 0,0,0,0, initvalue))
+        qa_entries.append((userid, gramprev, answers, 0,0,0,0, initvalue))
         prb_list.append(5)
         try:
             gramlist.remove(gramprev)
@@ -299,8 +300,8 @@ def quiz_anag(gramlist, userid = None, lexicon = None, listname = True):
             sql = 'INSERT INTO quiz_anag_' + lexicon +\
                   '''(user,gram,answers,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                      VALUES(?,?,?,?,?,?,?,?)'''
-            c.execute(sql, (userid, gram, '', 0,0,0,0,5))
-            qa_entries.append((userid, gram, '', 0,0,0,0,5))
+            c.execute(sql, (userid, gram, '', 0,0,0,0, initvalue))
+            qa_entries.append((userid, gram, '', 0,0,0,0, initvalue))
             prb_list.append(5)
     conn.commit()
     
@@ -443,6 +444,13 @@ def quiz_hook(list_len, userid = None, lexicon = None, listname = True):
         if listname:
             hooklist = extract_hook(list_len, lexicon)
     
+    # Using the user specified letter order and multiplier
+    userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
+    userdata = userdata.fetchall()
+    ltrord = userdata[0][1]
+    initvalue = userdata[0][2]
+    multiplier = userdata[0][3]
+    
     # Adding entries to quiz_hook if necessary.
     for word in hooklist:
         hookcheck = 'SELECT * FROM quiz_hook_' + lexicon + ' WHERE word = ?'
@@ -458,16 +466,10 @@ def quiz_hook(list_len, userid = None, lexicon = None, listname = True):
                                                prob_val)
                          VALUES(?,?,?,?,?,?,?,?,?)'''
             c.execute(hookadd, (userid, word, adddata[0][9], adddata[0][10],\
-                                0,0,0,0,5))
+                                0,0,0,0, initvalue))
             conn.commit()
     
-    print('You are quizzing!')   
-    
-    # Using the user specified letter order and multiplier
-    userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
-    userdata = userdata.fetchall()
-    ltrord = userdata[0][1]
-    multiplier = userdata[0][2]
+    print('You are quizzing!')
     
     k = 0
     # I would like to do this without a 'for' loop.
@@ -660,7 +662,8 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
         userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
         userdata = userdata.fetchall()
         ltrord = userdata[0][1]
-        multiplier = userdata[0][2]
+        initvalue = userdata[0][2]
+        multiplier = userdata[0][3]
         
         k = 0
         # Incorporating elements previously in the quiz_anag table
@@ -728,9 +731,9 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                       '''(user,gram,answers,lexica,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                          VALUES(?,?,?,?,?,?,?,?,?)'''
                 c.execute(sql, (userid, lex_answers[k][0], lex_answers[k][1],\
-                                   lex_answers[k][2], 0,0,0,0,5))
+                                   lex_answers[k][2], 0,0,0,0, initvalue))
                 qa_entries.append((userid, lex_answers[k][0], lex_answers[k][1],\
-                                   lex_answers[k][2], 0,0,0,0,5))
+                                   lex_answers[k][2], 0,0,0,0, initvalue))
                 prb_list.append(5)
             
                 try:
@@ -746,8 +749,8 @@ def quiz_anag_mlex(gramlist, userid = None, lexlist = None,
                 sql = 'INSERT INTO quiz_anag_' + leges +\
                       '''(user,gram,answers,lexica,num_cor,num_inc,wt_cor,wt_inc,prob_val)
                          VALUES(?,?,?,?,?,?,?,?,?)'''
-                c.execute(sql, (userid, gram, '', '', 0,0,0,0,5))
-                qa_entries.append((userid, gram, '', '', 0,0,0,0,5))
+                c.execute(sql, (userid, gram, '', '', 0,0,0,0, initvalue))
+                qa_entries.append((userid, gram, '', '', 0,0,0,0, initvalue))
                 prb_list.append(5)
         conn.commit()
         
@@ -946,6 +949,13 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
     # Removing duplicates
     hooklist = list(set(hooklist))
     
+    # Using the user specified letter order and multiplier
+    userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
+    userdata = userdata.fetchall()
+    ltrord = userdata[0][1]
+    initvalue = userdata[0][2]
+    multiplier = userdata[0][3]
+    
     # Adding entries to quiz_hook if necessary.
     # This seems like updating to me
     for word in hooklist:
@@ -1021,16 +1031,10 @@ def quiz_hook_mlex(list_len, userid = None, lexlist = None,\
                        num_cor,num_inc,wt_cor,wt_inc,prob_val)
                       VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'''
             c.execute(sql, (userid, word, lex_id_k, fhook_new, bhook_new,\
-                            fhook_lex_new, bhook_lex_new, 0,0,0,0,5))
+                            fhook_lex_new, bhook_lex_new, 0,0,0,0, initvalue))
             conn.commit()
     
-    print('You are quizzing!\n')   
-    
-    # Using the user specified letter order and multiplier
-    userdata = c.execute('SELECT * FROM users WHERE user = ?', (userid,))
-    userdata = userdata.fetchall()
-    ltrord = userdata[0][1]
-    multiplier = userdata[0][2]
+    print('You are quizzing!\n')
     
     k = 0
     # I would like to do this without a 'for' loop.
