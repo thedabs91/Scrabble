@@ -1268,6 +1268,9 @@ def login_fxn():
                     sql = 'UPDATE users SET letterorder = ? WHERE user = ?'
                     c.execute(sql, (ltrord_new, uname_global))
                     conn.commit()
+                init_code = input('Update initial value (y/n)?: ')
+                if mult_code.lower() == 'y':
+                    #ADD STUFFZ HEREZ
                 mult_code = input('Update multiplier (y/n)?: ')
                 if mult_code.lower() == 'y':
                     mult_new = input('New multiplier: ')
