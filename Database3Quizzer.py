@@ -1274,13 +1274,13 @@ def login_fxn():
                     conn.commit()
                 init_code = input('Update initial value (y/n)?: ')
                 if init_code == 'y':
-                    init_new = input('New initial value: ')
+                    init_new = float(input('New initial value: '))
                     while (init_new < 2):
                         init_check = input('Are you sure about that number (y/n)?: ')
                         if init_check.lower() == 'y':
                             pass
                         elif init_check.lower() == 'n':
-                            init_new = input('New initial value: ')
+                            init_new = float(input('New initial value: '))
                         else:
                             print('Not "y" or "n". Try again.')
                     sql = 'UPDATE users SET initvalue = ? WHERE user = ?'
@@ -1289,20 +1289,21 @@ def login_fxn():
                     table_names = table_names.fetchall()
                     table_names = [name[0] for name in table_names]
                     for name in table_names:
-                        sql = '''UPDATE ? SET prob_val = ?
-                                 WHERE num_cor = 0 AND num_inc = 0 AND user = ?'''
-                        c.execute(sql, (name, init_new, uname_global))
+                        if name[:5] == 'quiz_':
+                            sql = 'UPDATE ' + name + ''' SET prob_val = ?
+                                   WHERE num_cor = 0 AND num_inc = 0 AND user = ?'''
+                            c.execute(sql, (init_new, uname_global))
                     conn.commit()
                 mult_code = input('Update multiplier (y/n)?: ')
                 if mult_code.lower() == 'y':
-                    mult_new = input('New multiplier: ')
+                    mult_new = float(input('New multiplier: '))
                     while (mult_new < 1) or (mult_new > 2):
                         print('You chose a weird multiplier value.')
                         mult_check = input('Are you sure about that number (y/n)?: ')
                         if mult_check.lower() == 'y':
                             pass
                         elif mult_check.lower() == 'n':
-                            mult_new = input('New multiplier: ')
+                            mult_new = float(input('New multiplier: '))
                         else:
                             print('Not "y" or "n". Try again.')
                     sql = 'UPDATE users SET multiplier = ? WHERE user = ?'
