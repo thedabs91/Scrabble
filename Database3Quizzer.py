@@ -1264,13 +1264,34 @@ def login_fxn():
                         ltrord_new = input('New letter order (type "n" to cancel): ')
                         ltrord_new = ltrord_new.upper()
                         if ltrord_new == 'n':
-                            sql = 'SELECT letterorder FROM users WHERE user == ?'
+                            sql = 'SELECT letterorder FROM users WHERE user = ?'
                             ltrord_new = c.execute(sql, (uname_global,))
                         ltrord_legal = ltrord_check(ltrord_new)
                         if not ltrord_legal:
                             print('Illegal letter order. Try again.')
                     sql = 'UPDATE users SET letterorder = ? WHERE user = ?'
                     c.execute(sql, (ltrord_new, uname_global))
+                    conn.commit()
+                init_code = input('Update initial value (y/n)?: ')
+                if init_code == 'y':
+                    init_new = input('New initial value: ')
+                    while (init_new < 2):
+                        init_check = input('Are you sure about that number (y/n)?: ')
+                        if init_check.lower() == 'y':
+                            pass
+                        elif init_check.lower() == 'n':
+                            init_new = input('New initial value: ')
+                        else:
+                            print('Not "y" or "n". Try again.')
+                    sql = 'UPDATE users SET initvalue = ? WHERE user = ?'
+                    c.execute(sql, (init_new, uname_global))
+                    table_names = c.execute('SELECT name FROM sqlite_schema')
+                    table_names = table_names.fetchall()
+                    table_names = [name[0] for name in table_names]
+                    for name in table_names:
+                        sql = '''UPDATE ? SET prob_val = ?
+                                 WHERE num_cor = 0 AND num_inc = 0 AND user = ?'''
+                        c.execute(sql, (name, init_new, uname_global))
                     conn.commit()
                 mult_code = input('Update multiplier (y/n)?: ')
                 if mult_code.lower() == 'y':
