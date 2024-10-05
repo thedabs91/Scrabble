@@ -120,7 +120,4 @@ def text_data_add(filename):
     
     print('Process Complete!')
 
-# To use this function, type
-# >> import DictionaryMaker as dm
-# >> dm.text_data_add(name of wordlist)
-# note: be sure that the wordlist you use is saved in a directory called `Words`.
+
