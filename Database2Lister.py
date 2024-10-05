@@ -213,7 +213,7 @@ def search_subgram(gram, lengthmin, lengthmax, lexicon, full_data = True):
         min_score = sum(gram_scores[:lgt]) + nb
         max_score = sum(gram_scores[-lgt:]) + 10*nb
         search_sql = 'SELECT * FROM lexicon_' + lexicon +\
-                     '''WHERE length = ? AND score >= ? AND
+                     ''' WHERE length = ? AND score >= ? AND
                         score <= ? AND jqxz <= ?'''
         first_list = c.execute(search_sql,
                                 (lgt, min_score, max_score, gram_jqxz))
