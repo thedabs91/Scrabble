@@ -1,7 +1,7 @@
 # A file to update a word list with additions and deletions
 
 # Importing the original word List
-words_orig = file.open('Words/words_orig', 'r')
+words_orig = open('Words/nwl2023.txt', 'r')
 list_orig = []
 for line in words_orig:
   word = line.strip('\n\r')
@@ -10,7 +10,7 @@ for line in words_orig:
 words_orig.close()
 
 # Additions
-words_add = file.open('Words/words_add', 'r')
+words_add = open('Words/none.txt', 'r')
 list_add = []
 for line in words_add:
   word = line.strip('\n\r')
@@ -19,7 +19,7 @@ for line in words_add:
 words_add.close()
 
 # Deletions
-words_del = file.open('Words/words_del', 'r')
+words_del = open('Words/none.txt', 'r')
 list_del = []
 for line in words_del:
   word = line.strip('\n\r')
@@ -43,14 +43,10 @@ list_new.extend(list_add)
 list_new.sort()
 
 # Writing to a file
-words_new = file.open('Words/UpdatedWordList', 'w')
+words_new = open('Words/UpdatedWordList', 'w')
 for word in list_new:
   if word.strip(' ') != '':
     words_new.write(word + '\n\r')
 
 # I think this is it.
-
-
-
-
 
