@@ -1244,7 +1244,7 @@ def login_fxn():
                         lexicon1 = lex_sql[0][0]
                     print('To update multilex lexica, type the new lexica in order separated by commas.')
                     mlex_new = input('Multilex lexica: ')
-                    if lexlist_new.lower() == 'n':
+                    if mlex_new.lower() == 'n':
                         sql = 'SELECT lexlist FROM users WHERE user = ?'
                         lex_sql = c.execute(sql, (uname_global,))
                         lex_sql = lex_sql.fetchall()
@@ -1254,8 +1254,8 @@ def login_fxn():
                         mlex_new = [lex.strip() for lex in mlex_new]
                         lexlist_new = '_'.join(mlex_new)
                     sql = '''UPDATE users SET lexicon = ?, lexicon1 = ?,
-                             lexlist = ?, WHERE user = ?'''
-                    c.execute(sql, (lexicon_new, lexicon1_new, lexlist, uname_global))
+                             lexlist = ? WHERE user = ?'''
+                    c.execute(sql, (lexicon_new, lexicon1_new, lexlist_new, uname_global))
                     conn.commit()
                 ltrord_code = input('Update letter order (y/n)?: ')
                 if ltrord_code.lower() == 'y':
