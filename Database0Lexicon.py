@@ -279,3 +279,4 @@ def lex_db(lexicon):
     conn.commit()
 
 # This seems to have worked!
+
