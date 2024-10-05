@@ -1,50 +1,47 @@
-Steps:
+    Steps:
  1) Save the ".py" files a folder somewhere on your computer to, and save any
-      text files of words in dictionaries in "Words".
- 2) Open python in the folder selected in step 1 (original folder, not "Words").
- 3) Put those filenames in the appropriate place in "WordListUpdater.py" to
-      create the word list that you need.
+      word lists to create dictionaries in a new folder called "Words" in this
+      folder.
+ 2) Use a command prompt or Anaconda prompt to open this folder
+ 3) Edit the file "WordListUpdater.py" to change the argument of `open` in
+      `words_orig` to the name of the word list you want to add.
     
     > python WordListUpdater.py
     
- 4) Import "DictionaryMaker.py" as "dm" in a python and create a text file
+ 4) Open python and import "DictionaryMaker.py" as "dm" and create a text file
       including information about hooks and anagrams with the following code:
     
     >>> import DictionaryMaker as dm
-    >>> dm.text_data_add('filename')
+    >>> dm.text_data_add('UpdatedWordList')
     
-      where `filename` is replaced by the name of the file.
- 5) Change the name of the file to "UpdatedDic_lexYYYY.txt", where `lexYYYY` is 
-      replaced by the name and year of the lexicon you plan to use.
+      where `UpdatedWordList` is the name of the file written by
+      "DictionaryMaker.py".
+ 5) Change the name of the file "UpdatedDic" to "UpdatedDic_lexYYYY.txt", 
+      replacing `lexYYYY` with the name and year of the lexicon that was added.
  6) Once all lexica are created, then you can start making the databases.
- 7) In python, import "Database0Lexicon.py" as d0 and create the databases with
+ 7) In python, import "Database 0Lexicon.py" as d0 and create the databases with
       the following code:
     
     >>> import Database0Lexicon as d0
     >>> d0.lex_table('lexYYYY')
     >>> d0.lex_db('lexYYYY')
+
+    If a lexicon database needs to be deleted for any reason, that can be done
+      with the following code:
+
+    >>> d0.lex_table_delete('lexYYYY')
     
- 8) Now the database should be created. I we can create users
+ 8) Now the database should be created. Then users can be created.
  9) In python, import "Database1Users.py" in python and create your user account
       using the following code:
     
-    >>> import Database1Users as du
-    >>> du.create_user('username', ['initvalue', 'multiplier',\ 
-            'ltrorder', 'lexicon', 'lexicon1', 'lexlist'])
+    >>> import Database1Users as d1
+    >>> d1.create_user('username', ['ltrorder'])
+    >>> d1.conn.commit() # Maybe this should be added in the code.
     
     Here, `username` should be replaced with the username that you wish to use.
-    The brackets indicate that all arguments after the first are optional; they
-      should not be typed.
-    The optional second and third arguments are an integer and a real number.
-      The second, 'initvalue', is the initial value of questions you have not
-      seen. The default is 8. The third, 'multiplier', is the additional weight
-      of more recent responses. The default value is 1.2.
-    The optional fourth argument is the order you want letters to show in
+    The optional second argument is the order you want letters to show in
       quizzes. The default is alphabetical.
-    The optional fifth through seventh arguments are lexica to use for quizzes.
-    Here, `lexicon` is the default lexicon for unilexical quizzes, `lexicon1`
-      is an alternate default for unilexical quizzes. Lastly, 'lexlist' is the
-      list of lexica for multilexical quizzes.
     
 10) Now that you have created a username, you can use quizzes.
 11) I will now discuss "Database2Lister.py". This file could actually have been
@@ -63,63 +60,57 @@ Steps:
     search_subgram - searches for words found within a string of letters of a
                        user-specified length.
     search_list - a function that can search for words with specified
-                    characteristics. Possible specifications:
-                  'length <>= ?'   :  Specify the length
-                  'score <>= ?'    :  Specify score of tiles (ignores needed
-                                        blanks)
-                  'vowels <>= ?'   :  Specify number of vowels
-                  'jqxz <>= ?'     :  Specify total of Js, Qs, Xs, and Zs.
-                  'threeplus <>= ?':  Specify number of tiles worth at least
-                                        three points
-                  'remfirst = 0/1' :  Specify if the first letter can be removed
-                                        to still form a valid word
-                  'remlist = 0/1'  :  Specify if the last letter can be removed
-                                        to still form a valid word
-                  'fhook'          :  Not sure how this can be specified
-                  'bhook'          :  Not sure how this can be specified
-                  'nrack <>= ?'    :  Specify the number of racks, ignoring blanks
-                  'nrack_adj <>= ?':  Specify the number of racks, with 2 blanks
-                  
+                    characteristics.
     search_input - I am unsure if this works now.
     
     save_entries - saves lists of acceptable words to the gram database. Very
                      useful to use after a search from "search_list".
     save_grams - saves lists of grams
 
-12) When creating lists to study, it is good to save the lists you would be
-      interested in in a different file, which I call "Database_WordLister".
-      Example syntax and some lists I like are found in the file with this
-      name in this github repo.
+12) To use quizzes you must first create a tables in the database for the quiz
+      results. The code for this is:
 
-13) Now I discuss quizzing with "Database3Quizzer.py". The first step is the
-      login. You do not need to login for quizzes, but if you do not, you will
-      need to specify your username and lexica for each quiz individually,
-      which is not recommended, and instructions will not be provided.
-      
-    You will be prompted to login by typing your username upon loading
-      Database3Quizzer into python. If you would like to change users or
-      login after loading, use
-    >>> dq.uname_global = dq.login_fxn()
+    >>> import Database2Lister as dl
+    >>> dl.gram_db('lexYYYY')
+    >>> dl.hook_db('lexYYYY')
+   
+      where 'lexYYYY' is replaced with the lexicon and year to add.
 
-14) The next step is create a databases with the lexica and quiz types that
-      you want.
+12) Now I will talk about how to use quizzes.
+13) To set up the infrastructure for quizzing, import "Database3Quizzer.py" and
+      create the database for quizzing with the following code:
     
-    To create a anagram quiz with a lexicon or lexica, use one of the following
+    >>> import Database3Quizzer as dq
     >>> dq.quiz_anag_db('lexYYYY')
-    >>> dq.quiz_anag_mlex_db(['lex1YYYY','lex2YYYY',...,'lexnYYYY'])
-    
-    For hook quizzes, use one of the following:
     >>> dq.quiz_hook_db('lexYYYY')
-    >>> dq.quiz_hook_mlex_db(['lex1YYYY','lex2YYYY',...,'lexnYYYY'])
+        
+    For bilexical and multilexical quizzes, you will need additional functions:
     
-15) At this point you can quiz. If you had saved wordlists in step 11, you can
-      use the name of the wordlist in one of the following:
-      
-    >>> dq.quiz_anag('wordlist')
-    >>> dq.quiz_anag_mlex('wordlist')
-    >>> dq.quiz_hook('wordlist')
-    >>> dq.quiz_hook_mlex('wordlist')
+    >>> dq.quiz_anag_mlex_db(['lexYYY1', 'lexYYY2', ...])
+    >>> dq.quiz_hook_mlex_db(['lexYYY1', 'lexYYY2', ...])
     
-    For hook quizzes, you can also specify an integer length, and words will be
-      selected from all words of that length in the specified lexicon/lexica.
+    To delete these tables, use the function dq.quiz_anag_db_drop() or
+      dq.quiz_hook_db_drop(). For a multilexical database, include the lexica
+      names separated by '_':
     
+    >>> dq.quiz_anag_db_drop('lexYYY1_lexYYY2')
+    
+14) At this point you should be ready to start quizzing.
+    The code to take an anagram quiz is below:
+
+    >>> dq.quiz_anag('WordListName', [lexicon = 'lexYYYY', user = 'username'])
+    >>> dq.quiz_hook('WordListName', [lexicon = 'lexYYYY', user = 'username'])
+    >>> dq.quiz_anag_mlex('WordListName',\
+                          [lexlist = ['lexYYY1', 'lexYYY2', ...],\
+                            user = 'username])
+    >>> dq.quiz_hook_mlex('WordListName',\
+                          [lexlist = ['lexYYY1', 'lexYYY2', ...],\
+                            user = 'username])
+    
+    In this code, the arguments in brackets are optional. The values for
+      lexlist are in brackets because that is how they need to be entered.
+    The "\" character is used as the way to continue to the next line. I use
+      it here to keep lines to 80 characters; it is not recommended to use "\"
+      in command line.
+
+
