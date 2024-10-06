@@ -1,0 +1,12 @@
+# Databases #
+#############
+*.db
+
+# Copyrighted Wordlists #
+#########################
+*csw*
+*nwl*
+
+# Fully Enhanced Wordlists #
+############################
+*UpdatedDic_*
