@@ -11,5 +11,6 @@ This contains code to create a record of hooks and alphagrams out of a word list
 * Run `Database1Users.py` to add a table for different users.
 * Run `Database2Lister.py` to create word lists to aid in studying.
     - There are also tools to search the word lists in `Database2Lister.py`
+* Make your own version of `Database_WordLister.py` (Using an underscore for `Database_WordLister_<yourname>.py) to generate your favorite word lists for studying.
 * Run `Database3Quizzer.py` to quiz yourself on hooks and anagrams!
     - These quizzes will show the words with probabilities such that questions you get wrong or have not yet seen appear less often.
