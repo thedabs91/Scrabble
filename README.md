@@ -1,6 +1,6 @@
 # Scrabble
 
-This contains code to create a record of hooks and alphagrams out of a word list. It then allows that record to be saved as a database and used as quizzes. These programs began as a way to teach myself python, and was inspired by Zyzzyva, which is now owned by the North American Scrabble(R) Player's Association (NASPA).
+This contains code to create a record of hooks and alphagrams out of a word list. It then allows that record to be saved as a database and used as quizzes. These programs began as a way to teach myself python, and was inspired by Zyzzyva, which is now owned by NASPA.
 
 ## To use the files
 
