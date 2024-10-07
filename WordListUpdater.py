@@ -1,7 +1,7 @@
 # A file to update a word list with additions and deletions
 
 # Importing the original word List
-words_orig = open('Words/nwl2023.txt', 'r')
+words_orig = open('Words/csw2021.txt', 'r')
 list_orig = []
 for line in words_orig:
   word = line.strip('\n\r')

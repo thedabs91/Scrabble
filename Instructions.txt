@@ -1,8 +1,9 @@
     Steps:
  1) Save the ".py" files a folder somewhere on your computer to, and save any
-      word lists to create dictionaries in a new folder called "Words" in this
-      folder.
- 2) Use a command prompt or Anaconda prompt to open this folder
+      word lists to create dictionaries in the folder called "Words", that
+      currently contains the file "wow2024.txt" (the WOW 2024 Wordlist).
+ 2) Use a command prompt with access to python (I use Anaconda prompt) to open
+       this folder.
  3) Edit the file "WordListUpdater.py" to change the argument of `open` in
       `words_orig` to the name of the word list you want to add.
     
@@ -19,7 +20,7 @@
  5) Change the name of the file "UpdatedDic" to "UpdatedDic_lexYYYY.txt", 
       replacing `lexYYYY` with the name and year of the lexicon that was added.
  6) Once all lexica are created, then you can start making the databases.
- 7) In python, import "Database 0Lexicon.py" as d0 and create the databases with
+ 7) In python, import `Database0Lexicon.py` as d0 and create the databases with
       the following code:
     
     >>> import Database0Lexicon as d0
@@ -74,7 +75,8 @@
     >>> dl.gram_db('lexYYYY')
     >>> dl.hook_db('lexYYYY')
    
-      where 'lexYYYY' is replaced with the lexicon and year to add.
+      where 'lexYYYY' is replaced with the lexicon and year to add. Note that
+      the import is as "dl" not "d1" and this is a different file.
 
 12) Now I will talk about how to use quizzes.
 13) To set up the infrastructure for quizzing, import "Database3Quizzer.py" and
@@ -94,8 +96,15 @@
       names separated by '_':
     
     >>> dq.quiz_anag_db_drop('lexYYY1_lexYYY2')
+
+14) At this point you are ready to make wordlists for quizzing. Some basic
+      wordlist ideas are in "Database_WordLister.py". Feel free to edit this
+      file to contain any wordlists you think are useful for beginning players.
+      To make a personal version that you don't want others to see, please
+      create a file "Database_WordLister_<yourname>.py", which is ignored in
+      the `.gitignore` file.
     
-14) At this point you should be ready to start quizzing.
+15) At this point you should be ready to start quizzing.
     The code to take an anagram quiz is below:
 
     >>> dq.quiz_anag('WordListName', [lexicon = 'lexYYYY', user = 'username'])
